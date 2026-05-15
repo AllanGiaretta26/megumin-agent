@@ -56,6 +56,9 @@ export function ChatMessage({ message }: ChatMessageProps) {
           <p className="whitespace-pre-wrap">{message.content}</p>
         ) : (
           <div className="prose prose-invert prose-sm max-w-none">
+          {message.isStreaming && message.content === "" && (
+            <span className="inline-block w-2 h-4 bg-megumin-primary animate-pulse align-middle" />
+          )}
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
@@ -126,6 +129,9 @@ export function ChatMessage({ message }: ChatMessageProps) {
           >
             {message.content}
           </ReactMarkdown>
+          {message.isStreaming && message.content !== "" && (
+            <span className="inline-block w-2 h-4 bg-megumin-primary animate-pulse align-middle ml-0.5" />
+          )}
           </div>
         )}
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import type { AgentModeId } from "@/features/modes/types";
 import { useEffect, useRef } from "react";
 import { AGENT_MODES } from "../../modes/constants";
 import type { ChatMessage as ChatMessageType } from "../types";
@@ -9,10 +10,18 @@ import { ChatMessage, LoadingBubble } from "./chat-message";
 interface ChatContainerProps {
   messages: ChatMessageType[];
   isLoading: boolean;
+  isStreaming: boolean;
   activeMode: string;
+  onModeChange: (mode: AgentModeId) => void;
 }
 
-function WelcomeScreen({ activeMode }: { activeMode: string }) {
+function WelcomeScreen({
+  activeMode,
+  onModeChange,
+}: {
+  activeMode: string;
+  onModeChange: (mode: AgentModeId) => void;
+}) {
   return (
     <div className="flex flex-col items-center justify-center h-full gap-6 px-8 text-center">
       <div
@@ -44,10 +53,11 @@ function WelcomeScreen({ activeMode }: { activeMode: string }) {
           <Badge
             key={mode.id}
             variant="outline"
+            onClick={() => onModeChange(mode.id)}
             className={
               mode.id === activeMode
-                ? "border-megumin-primary text-megumin-primary bg-megumin-primary/10"
-                : "border-megumin-border text-megumin-text-muted"
+                ? "border-megumin-primary text-megumin-primary bg-megumin-primary/10 cursor-pointer hover:bg-megumin-primary/20 transition-colors"
+                : "border-megumin-border text-megumin-text-muted cursor-pointer hover:border-megumin-primary hover:text-megumin-primary transition-colors"
             }
           >
             {mode.label}
@@ -61,7 +71,9 @@ function WelcomeScreen({ activeMode }: { activeMode: string }) {
 export function ChatContainer({
   messages,
   isLoading,
+  isStreaming,
   activeMode,
+  onModeChange,
 }: ChatContainerProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -71,7 +83,7 @@ export function ChatContainer({
   }, [messages, isLoading]);
 
   if (messages.length === 0 && !isLoading) {
-    return <WelcomeScreen activeMode={activeMode} />;
+    return <WelcomeScreen activeMode={activeMode} onModeChange={onModeChange} />;
   }
 
   return (
@@ -79,7 +91,8 @@ export function ChatContainer({
       {messages.map((message) => (
         <ChatMessage key={message.id} message={message} />
       ))}
-      {isLoading && <LoadingBubble />}
+      {/* LoadingBubble só quando loading sem streaming ativo — streaming tem seu próprio cursor na mensagem */}
+      {isLoading && !isStreaming && <LoadingBubble />}
       <div ref={bottomRef} />
     </div>
   );

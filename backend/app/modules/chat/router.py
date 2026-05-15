@@ -1,9 +1,12 @@
+import json
 from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
 
 from app.core.exceptions import ModeNotFoundError, OllamaUnavailableError
 from app.modules.agent.modes import from_name as mode_from_name
+from app.modules.config import load_config
 from app.shared.logger import logger
 
 from . import memory
@@ -67,3 +70,58 @@ def chat(request: ChatRequest) -> ChatResponse:
         raise HTTPException(status_code=503, detail=str(exc))
     except ModeNotFoundError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
+
+
+@router.post("/chat/stream")
+async def chat_stream(request: ChatRequest) -> StreamingResponse:
+    """Streaming de resposta token a token via Server-Sent Events (SSE).
+
+    SSE mantém a conexão HTTP aberta e envia dados em fragmentos.
+    Cada evento tem formato: "data: {json}\\n\\n"
+    """
+    try:
+        mode_config = mode_from_name(request.mode)
+    except ModeNotFoundError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    if mode_config.requires_project_path and not request.project_path:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Modo '{request.mode}' requer um project_path configurado.",
+        )
+
+    session_id = request.session_id or str(uuid4())
+    if not memory.session_exists(session_id):
+        memory.init_session(session_id)
+    memory.save_message(session_id, "user", request.message)
+    history = memory.get_history(session_id)
+    drama_level = load_config().personality.drama_level
+
+    service = ChatService()
+
+    async def generate():
+        accumulated: list[str] = []
+        try:
+            async for token in service._agent.astream(
+                messages=history,
+                session_id=session_id,
+                mode=request.mode,
+                project_path=request.project_path or "",
+                drama_level=drama_level,
+            ):
+                accumulated.append(token)
+                yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
+
+            full_response = "".join(accumulated)
+            memory.save_message(session_id, "assistant", full_response)
+            yield f"data: {json.dumps({'type': 'done', 'session_id': session_id})}\n\n"
+
+        except Exception as exc:
+            logger.error(f"[stream] Erro durante streaming: {exc}")
+            yield f"data: {json.dumps({'type': 'error', 'message': str(exc)})}\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )

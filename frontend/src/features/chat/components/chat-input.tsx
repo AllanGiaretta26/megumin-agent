@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Send } from "lucide-react";
+import { Send, Square } from "lucide-react";
 import { useRef, useState } from "react";
 
 const MAX_CHARS = 2000;
@@ -12,9 +12,11 @@ const LINE_HEIGHT = 24; // px aproximado por linha
 interface ChatInputProps {
   onSend: (message: string) => void;
   isLoading: boolean;
+  isStreaming?: boolean;
+  onStop?: () => void;
 }
 
-export function ChatInput({ onSend, isLoading }: ChatInputProps) {
+export function ChatInput({ onSend, isLoading, isStreaming, onStop }: ChatInputProps) {
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -83,18 +85,29 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
             </span>
           )}
 
-          <Button
-            size="icon"
-            onClick={handleSend}
-            disabled={isLoading || !value.trim()}
-            className={cn(
-              "h-8 w-8 rounded-lg bg-megumin-primary text-white transition-all duration-200",
-              "hover:bg-megumin-glow hover:shadow-[0_0_12px_rgba(124,58,237,0.6)]",
-              "disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
-            )}
-          >
-            <Send className="h-4 w-4" />
-          </Button>
+          {isStreaming ? (
+            <Button
+              size="icon"
+              onClick={onStop}
+              title="Parar geração"
+              className="h-8 w-8 rounded-lg bg-megumin-accent text-white hover:bg-megumin-accent/80 transition-all duration-200"
+            >
+              <Square className="h-4 w-4 fill-current" />
+            </Button>
+          ) : (
+            <Button
+              size="icon"
+              onClick={handleSend}
+              disabled={isLoading || !value.trim()}
+              className={cn(
+                "h-8 w-8 rounded-lg bg-megumin-primary text-white transition-all duration-200",
+                "hover:bg-megumin-glow hover:shadow-[0_0_12px_rgba(124,58,237,0.6)]",
+                "disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+              )}
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
 
