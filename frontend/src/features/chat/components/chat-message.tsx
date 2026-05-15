@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import remarkGfm from "remark-gfm";
 import { oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import type { ChatMessage } from "../types";
 
@@ -56,6 +57,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
         ) : (
           <div className="prose prose-invert prose-sm max-w-none">
           <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
             components={{
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               code(props: any) {
@@ -78,6 +80,46 @@ export function ChatMessage({ message }: ChatMessageProps) {
                   >
                     {String(children).replace(/\n$/, "")}
                   </SyntaxHighlighter>
+                );
+              },
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              table(props: any) {
+                return (
+                  <div className="overflow-x-auto my-3">
+                    <table className="w-full border-collapse text-xs">{props.children}</table>
+                  </div>
+                );
+              },
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              thead(props: any) {
+                return <thead className="bg-megumin-surface-raised">{props.children}</thead>;
+              },
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              tbody(props: any) {
+                return <tbody>{props.children}</tbody>;
+              },
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              tr(props: any) {
+                return (
+                  <tr className="border-b border-megumin-border even:bg-megumin-surface-raised/50">
+                    {props.children}
+                  </tr>
+                );
+              },
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              th(props: any) {
+                return (
+                  <th className="px-3 py-2 text-left font-semibold text-megumin-primary border-b border-megumin-border">
+                    {props.children}
+                  </th>
+                );
+              },
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              td(props: any) {
+                return (
+                  <td className="px-3 py-2 text-left text-megumin-text-primary border-r border-megumin-border/50 last:border-r-0">
+                    {props.children}
+                  </td>
                 );
               },
             }}
