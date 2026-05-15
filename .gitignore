@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[oc]
+*.egg-info/
+build/
+dist/
+wheels/
+.venv/
+
+# Variáveis de ambiente e segredos
+.env
+*.env.local
+
+# Configuração persistida do app (pode conter API keys — nunca versionar)
+backend/app/data/
+
+# Frontend — Fase 5+
+node_modules/
+.next/
+frontend/out/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentação interna do projeto
+BRIEFING.md
+CLAUDE.md
