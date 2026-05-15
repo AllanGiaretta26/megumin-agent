@@ -12,4 +12,7 @@ dependencies = [
     "python-dotenv",
     "ollama",
     "httpx",
+    "langgraph",
+    "langchain",
+    "langchain-ollama",
 ]
