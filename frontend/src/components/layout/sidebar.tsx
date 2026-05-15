@@ -14,6 +14,7 @@ interface SidebarProps {
   onNewConversation: () => void;
   isOpen: boolean;
   onClose: () => void;
+  ollamaAvailable?: boolean;
 }
 
 export function Sidebar({
@@ -22,6 +23,7 @@ export function Sidebar({
   onNewConversation,
   isOpen,
   onClose,
+  ollamaAvailable,
 }: SidebarProps) {
   return (
     <>
@@ -80,6 +82,17 @@ export function Sidebar({
               <p className="text-xs text-megumin-primary mt-0.5">
                 Arch-wizard · Crimson Demon
               </p>
+              {ollamaAvailable !== undefined && (
+                <p
+                  className={cn(
+                    "text-xs mt-1 flex items-center gap-1",
+                    ollamaAvailable ? "text-green-400" : "text-red-400"
+                  )}
+                >
+                  <span className="text-base leading-none">●</span>
+                  {ollamaAvailable ? "Ollama conectado" : "Ollama offline"}
+                </p>
+              )}
             </div>
           </div>
         </div>
