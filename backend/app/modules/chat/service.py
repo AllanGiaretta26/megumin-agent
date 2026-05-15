@@ -2,6 +2,7 @@ from uuid import uuid4
 
 from app.core.exceptions import OllamaUnavailableError
 from app.modules.agent import AgentService
+from app.modules.config import load_config
 from app.shared.logger import logger
 
 from . import memory
@@ -44,6 +45,7 @@ class ChatService:
         )
 
         try:
+            drama_level = load_config().personality.drama_level
             # Tool calls e ToolMessages intermediários ficam dentro do grafo —
             # o service.py só recebe a resposta textual final.
             response = self._agent.run(
@@ -51,6 +53,7 @@ class ChatService:
                 session_id=session_id,
                 mode=mode,
                 project_path=project_path or "",
+                drama_level=drama_level,
             )
         except OllamaUnavailableError:
             memory.clear_session(session_id)

@@ -1,6 +1,11 @@
+from pathlib import Path
+
 from langchain_core.messages import SystemMessage
 from langgraph.graph import END, StateGraph
 from langgraph.prebuilt import ToolNode
+
+_PROMPTS_DIR = Path(__file__).parent / "prompts"
+_PERSONALITY_TEMPLATE = (_PROMPTS_DIR / "personality.md").read_text(encoding="utf-8")
 
 from app.core.exceptions import ModeNotFoundError, OllamaUnavailableError
 from app.shared.logger import logger
@@ -25,15 +30,18 @@ def _select_mode(state: AgentState) -> dict:
     de gerar qualquer resposta. É o equivalente a um middleware de configuração
     que prepara o contexto antes da execução principal.
     """
-    logger.info(f"[grafo] select_mode | mode={state['mode']}")
+    logger.info(f"[grafo] select_mode | mode={state['mode']} drama={state['drama_level']}")
     try:
         mode = mode_from_name(state["mode"])
     except ModeNotFoundError:
         raise
 
+    personality = _PERSONALITY_TEMPLATE.replace("{drama_level}", str(state["drama_level"]))
+    full_prompt = mode.system_prompt + "\n\n" + personality
+
     return {
         "allowed_tools": mode.allowed_tools,
-        "system_prompt": mode.system_prompt,
+        "system_prompt": full_prompt,
     }
 
 
@@ -57,9 +65,11 @@ def _make_call_llm_node(provider: BaseLLMProvider):
         all_messages = [system_msg] + list(state["messages"])
 
         logger.info(
-            f"[grafo] call_llm | mode={state['mode']} "
+            f"[grafo] call_llm | mode={state['mode']} drama={state['drama_level']} "
             f"tools={state['allowed_tools']} msgs={len(all_messages)}"
         )
+        # Log dos primeiros 300 chars do system prompt para confirmar que a personalidade chega ao LLM
+        logger.info(f"[grafo] system_prompt preview: {state['system_prompt'][:300]!r}")
 
         try:
             response = llm.invoke(all_messages)
@@ -83,18 +93,19 @@ def _route_after_llm(state: AgentState) -> str:
     """
     last = state["messages"][-1]
     if hasattr(last, "tool_calls") and last.tool_calls:
-        logger.debug(f"[grafo] LLM solicitou tools: {[tc['name'] for tc in last.tool_calls]}")
+        tool_names = [tc["name"] for tc in last.tool_calls]
+        logger.info(f"[grafo] → execute_tools | tools={tool_names}")
         return "execute_tools"
+    logger.info(f"[grafo] → format_response")
     return "format_response"
 
 
 def _format_response(state: AgentState) -> dict:
-    """Nó 4: extrai o texto final da última AIMessage como response.
-
-    Na Fase 7 aqui entrará o ajuste de drama_level antes de devolver.
-    """
+    """Nó 4: extrai o texto final da última AIMessage como response."""
     last = state["messages"][-1]
-    return {"response": str(last.content)}
+    content = str(last.content)
+    logger.info(f"[grafo] format_response | content_len={len(content)}")
+    return {"response": content}
 
 
 def _build_graph(provider: BaseLLMProvider):
@@ -133,9 +144,10 @@ class AgentService:
         session_id: str,
         mode: str = "study",
         project_path: str = "",
+        drama_level: int = 50,
     ) -> str:
         """Executa o grafo e retorna o texto da resposta final."""
-        logger.info(f"[agente] run | session={session_id} mode={mode}")
+        logger.info(f"[agente] run | session={session_id} mode={mode} drama={drama_level}")
         initial_state: AgentState = {
             "messages": messages,
             "session_id": session_id,
@@ -144,6 +156,61 @@ class AgentService:
             "project_path": project_path,
             "allowed_tools": [],
             "system_prompt": "",
+            "drama_level": drama_level,
         }
         result = self._graph.invoke(initial_state)
         return result["response"]
+
+    async def astream(
+        self,
+        messages: list,
+        session_id: str,
+        mode: str = "study",
+        project_path: str = "",
+        drama_level: int = 50,
+    ):
+        """Async generator que emite tokens do LLM via astream_events.
+
+        Quando o Ollama não suporta streaming após tool_use (limitação conhecida),
+        on_chat_model_stream não dispara para a resposta final. O fallback captura
+        o output de format_response via on_chain_end e emite o texto inteiro.
+        """
+        logger.info(f"[agente] astream | session={session_id} mode={mode} drama={drama_level}")
+        initial_state: AgentState = {
+            "messages": messages,
+            "session_id": session_id,
+            "response": "",
+            "mode": mode,
+            "project_path": project_path,
+            "allowed_tools": [],
+            "system_prompt": "",
+            "drama_level": drama_level,
+        }
+
+        tokens_emitted: list[str] = []
+
+        async for event in self._graph.astream_events(initial_state, version="v2"):
+            kind = event["event"]
+            name = event.get("name", "")
+
+            if kind == "on_chat_model_stream":
+                chunk = event["data"]["chunk"]
+                # chunk.content é string vazia em tool_call_chunks — ignorar
+                if hasattr(chunk, "content") and chunk.content:
+                    token = str(chunk.content)
+                    tokens_emitted.append(token)
+                    yield token
+
+            elif kind == "on_chain_end" and name == "format_response":
+                # Fallback: Ollama não emite on_chat_model_stream para a resposta
+                # final quando há ToolMessages no contexto (limitação do tool_use).
+                # Nesse caso emitimos o texto completo de uma vez.
+                if not tokens_emitted:
+                    output = event["data"].get("output", {})
+                    response_text = output.get("response", "") if isinstance(output, dict) else ""
+                    if response_text:
+                        logger.info(
+                            f"[agente] astream fallback via format_response "
+                            f"| len={len(response_text)}"
+                        )
+                        yield response_text
