@@ -16,7 +16,13 @@ class ChatService:
     def __init__(self) -> None:
         self._agent = AgentService()
 
-    def chat(self, message: str, session_id: str | None = None) -> tuple[str, str]:
+    def chat(
+        self,
+        message: str,
+        session_id: str | None = None,
+        mode: str = "study",
+        project_path: str | None = None,
+    ) -> tuple[str, str]:
         """Processa uma mensagem e retorna (resposta, session_id).
 
         Se session_id não for fornecido, cria uma sessão temporária que é
@@ -32,12 +38,21 @@ class ChatService:
         memory.save_message(session_id, "user", message)
         history = memory.get_history(session_id)
 
-        logger.info(f"Processando mensagem | session_id={session_id} | histórico={len(history)} msgs")
+        logger.info(
+            f"Processando mensagem | session_id={session_id} "
+            f"mode={mode} | histórico={len(history)} msgs"
+        )
 
         try:
-            response = self._agent.run(messages=history, session_id=session_id)
+            # Tool calls e ToolMessages intermediários ficam dentro do grafo —
+            # o service.py só recebe a resposta textual final.
+            response = self._agent.run(
+                messages=history,
+                session_id=session_id,
+                mode=mode,
+                project_path=project_path or "",
+            )
         except OllamaUnavailableError:
-            # Remove a mensagem do usuário do histórico para não poluir em caso de falha
             memory.clear_session(session_id)
             raise
 

@@ -2,7 +2,8 @@ from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException
 
-from app.core.exceptions import OllamaUnavailableError
+from app.core.exceptions import ModeNotFoundError, OllamaUnavailableError
+from app.modules.agent.modes import from_name as mode_from_name
 from app.shared.logger import logger
 
 from . import memory
@@ -40,10 +41,29 @@ def get_history(session_id: str) -> HistoryResponse:
 @router.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest) -> ChatResponse:
     """Envia uma mensagem ao agente e retorna a resposta com o session_id."""
-    logger.info("POST /chat")
+    logger.info(f"POST /chat | mode={request.mode}")
+
+    try:
+        mode_config = mode_from_name(request.mode)
+    except ModeNotFoundError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    if mode_config.requires_project_path and not request.project_path:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Modo '{request.mode}' requer um project_path configurado.",
+        )
+
     service = ChatService()
     try:
-        response, session_id = service.chat(request.message, request.session_id)
+        response, session_id = service.chat(
+            request.message,
+            request.session_id,
+            request.mode,
+            request.project_path,
+        )
         return ChatResponse(response=response, session_id=session_id)
     except OllamaUnavailableError as exc:
         raise HTTPException(status_code=503, detail=str(exc))
+    except ModeNotFoundError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))

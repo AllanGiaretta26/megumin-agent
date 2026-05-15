@@ -15,4 +15,5 @@ dependencies = [
     "langgraph",
     "langchain",
     "langchain-ollama",
+    "langchain-openai",
 ]

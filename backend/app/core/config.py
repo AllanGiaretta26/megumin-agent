@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     ollama_host: str = "http://localhost:11434"
     model_name: str = "qwen3.5:9b"
     environment: str = "development"
+    # Campos opcionais para o provider OpenAI-compatible (configurável na Fase 6)
+    openai_base_url: str | None = None
+    openai_api_key: str | None = None
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
