@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.modules.chat import router as chat_router
+from app.modules.config import router as config_router
 from app.shared.logger import logger
 
 app = FastAPI(title="Agent AI Megumin", version="0.1.0")
@@ -17,6 +18,7 @@ app.add_middleware(
 )
 
 app.include_router(chat_router)
+app.include_router(config_router)
 
 
 @app.get("/health")
