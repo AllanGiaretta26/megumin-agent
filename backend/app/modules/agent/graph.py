@@ -8,12 +8,13 @@ _PROMPTS_DIR = Path(__file__).parent / "prompts"
 _PERSONALITY_TEMPLATE = (_PROMPTS_DIR / "personality.md").read_text(encoding="utf-8")
 
 from app.core.exceptions import ModeNotFoundError, OllamaUnavailableError
+from app.modules.config.schemas import AppConfig
 from app.shared import render_template
 from app.shared.logger import logger
 
 from .modes import from_name as mode_from_name
+from .providers import build_provider
 from .providers.base import BaseLLMProvider
-from .providers.ollama import OllamaProvider
 from .state import AgentState
 from .tools import get_tools_by_names, list_directory, read_file, write_file
 
@@ -148,8 +149,9 @@ def _build_graph(provider: BaseLLMProvider):
 class AgentService:
     """Orquestra a execução do agente via LangGraph."""
 
-    def __init__(self, provider: BaseLLMProvider | None = None) -> None:
-        self._graph = _build_graph(provider or OllamaProvider())
+    def __init__(self, config: AppConfig) -> None:
+        self._provider = build_provider(config)
+        self._graph = _build_graph(self._provider)
 
     def run(
         self,

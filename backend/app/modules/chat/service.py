@@ -15,7 +15,7 @@ class ChatService:
     """
 
     def __init__(self) -> None:
-        self._agent = AgentService()
+        self._agent = AgentService(load_config())
 
     def chat(
         self,
