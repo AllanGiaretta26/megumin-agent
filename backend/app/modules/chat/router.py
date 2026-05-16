@@ -95,7 +95,7 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
         memory.init_session(session_id)
     memory.save_message(session_id, "user", request.message)
     history = memory.get_history(session_id)
-    drama_level = load_config().personality.drama_level
+    personality = load_config().personality
 
     service = ChatService()
 
@@ -107,7 +107,8 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
                 session_id=session_id,
                 mode=request.mode,
                 project_path=request.project_path or "",
-                drama_level=drama_level,
+                drama_level=personality.drama_level,
+                language=personality.language,
             ):
                 accumulated.append(token)
                 yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"

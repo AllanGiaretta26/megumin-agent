@@ -19,3 +19,4 @@ class AgentState(TypedDict):
     allowed_tools: list[str]  # nomes das tools que o modo atual pode usar
     system_prompt: str        # carregado do .md pelo nó select_mode; não entra em messages
     drama_level: int          # 0–100, lido da config em runtime; injetado no personality.md
+    language: str             # idioma de resposta (ex: "pt-BR"), lido da config; injetado no personality.md
