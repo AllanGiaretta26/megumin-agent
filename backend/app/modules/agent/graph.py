@@ -8,6 +8,7 @@ _PROMPTS_DIR = Path(__file__).parent / "prompts"
 _PERSONALITY_TEMPLATE = (_PROMPTS_DIR / "personality.md").read_text(encoding="utf-8")
 
 from app.core.exceptions import ModeNotFoundError, OllamaUnavailableError
+from app.shared import render_template
 from app.shared.logger import logger
 
 from .modes import from_name as mode_from_name
@@ -30,14 +31,26 @@ def _select_mode(state: AgentState) -> dict:
     de gerar qualquer resposta. É o equivalente a um middleware de configuração
     que prepara o contexto antes da execução principal.
     """
-    logger.info(f"[grafo] select_mode | mode={state['mode']} drama={state['drama_level']}")
+    logger.info(
+        f"[grafo] select_mode | mode={state['mode']} "
+        f"drama={state['drama_level']} lang={state['language']}"
+    )
     try:
         mode = mode_from_name(state["mode"])
     except ModeNotFoundError:
         raise
 
-    personality = _PERSONALITY_TEMPLATE.replace("{drama_level}", str(state["drama_level"]))
-    full_prompt = mode.system_prompt + "\n\n" + personality
+    if state["drama_level"] == 0:
+        return {"allowed_tools": mode.allowed_tools, "system_prompt": mode.system_prompt}
+
+    personality = render_template(
+        _PERSONALITY_TEMPLATE,
+        drama_level=state["drama_level"],
+        language=state["language"],
+    )
+    # Personalidade vem ANTES do prompt de modo: modelos 8B-9B ancoram
+    # identidade no primeiro parágrafo do system prompt.
+    full_prompt = personality + "\n\n" + mode.system_prompt
 
     return {
         "allowed_tools": mode.allowed_tools,
@@ -145,9 +158,13 @@ class AgentService:
         mode: str = "study",
         project_path: str = "",
         drama_level: int = 50,
+        language: str = "pt-BR",
     ) -> str:
         """Executa o grafo e retorna o texto da resposta final."""
-        logger.info(f"[agente] run | session={session_id} mode={mode} drama={drama_level}")
+        logger.info(
+            f"[agente] run | session={session_id} mode={mode} "
+            f"drama={drama_level} lang={language}"
+        )
         initial_state: AgentState = {
             "messages": messages,
             "session_id": session_id,
@@ -157,6 +174,7 @@ class AgentService:
             "allowed_tools": [],
             "system_prompt": "",
             "drama_level": drama_level,
+            "language": language,
         }
         result = self._graph.invoke(initial_state)
         return result["response"]
@@ -168,6 +186,7 @@ class AgentService:
         mode: str = "study",
         project_path: str = "",
         drama_level: int = 50,
+        language: str = "pt-BR",
     ):
         """Async generator que emite tokens do LLM via astream_events.
 
@@ -175,7 +194,10 @@ class AgentService:
         on_chat_model_stream não dispara para a resposta final. O fallback captura
         o output de format_response via on_chain_end e emite o texto inteiro.
         """
-        logger.info(f"[agente] astream | session={session_id} mode={mode} drama={drama_level}")
+        logger.info(
+            f"[agente] astream | session={session_id} mode={mode} "
+            f"drama={drama_level} lang={language}"
+        )
         initial_state: AgentState = {
             "messages": messages,
             "session_id": session_id,
@@ -185,6 +207,7 @@ class AgentService:
             "allowed_tools": [],
             "system_prompt": "",
             "drama_level": drama_level,
+            "language": language,
         }
 
         tokens_emitted: list[str] = []
