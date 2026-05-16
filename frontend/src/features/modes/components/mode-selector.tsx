@@ -2,9 +2,9 @@
 
 import { cn } from "@/lib/utils";
 import {
-  BookOpen,
   ClipboardList,
   MessageCircle,
+  MessageSquare,
   Pencil,
   Zap,
 } from "lucide-react";
@@ -16,7 +16,7 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   ClipboardList,
   Pencil,
   MessageCircle,
-  BookOpen,
+  MessageSquare,
 };
 
 interface ModeSelectorProps {

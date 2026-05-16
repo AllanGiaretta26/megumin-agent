@@ -45,7 +45,7 @@ export function ChatLayout() {
       "2": "planning",
       "3": "autonomous_edit",
       "4": "questions",
-      "5": "study",
+      "5": "free_chat",
     };
     const handler = (e: KeyboardEvent) => {
       const mod = e.ctrlKey || e.metaKey;

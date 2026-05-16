@@ -13,7 +13,7 @@ export function useChat({ projectPath }: UseChatOptions = {}) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [activeMode, setActiveMode] = useState<string>("study");
+  const [activeMode, setActiveMode] = useState<string>("free_chat");
   const abortRef = useRef<AbortController | null>(null);
 
   // Cria sessão automaticamente ao montar

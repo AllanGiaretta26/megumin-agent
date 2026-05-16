@@ -3,7 +3,7 @@ export type AgentModeId =
   | "planning"
   | "autonomous_edit"
   | "questions"
-  | "study";
+  | "free_chat";
 
 export interface AgentMode {
   id: AgentModeId;

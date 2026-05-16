@@ -30,10 +30,10 @@ export const AGENT_MODES: AgentMode[] = [
     requiresProjectPath: true,
   },
   {
-    id: "study",
-    label: "Estudo",
-    description: "Professor de programação",
-    icon: "BookOpen",
+    id: "free_chat",
+    label: "Conversa Livre",
+    description: "Chat geral com a Megumin",
+    icon: "MessageSquare",
     requiresProjectPath: false,
   },
 ];
