@@ -21,7 +21,7 @@ class ChatService:
         self,
         message: str,
         session_id: str | None = None,
-        mode: str = "study",
+        mode: str = "free_chat",
         project_path: str | None = None,
     ) -> tuple[str, str]:
         """Processa uma mensagem e retorna (resposta, session_id).

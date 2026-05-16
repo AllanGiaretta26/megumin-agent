@@ -13,7 +13,7 @@ class AgentState(TypedDict):
     messages: Annotated[list, add_messages]
     session_id: str
     response: str          # resposta final extraída pelo nó format_response
-    mode: str              # "study" | "questions" | "planning" | "agent" | "autonomous_edit"
+    mode: str              # "free_chat" | "questions" | "planning" | "agent" | "autonomous_edit"
     project_path: str      # caminho da sandbox; "" quando o modo não exige (nunca None —
                            # InjectedState nas tools espera str, não str|None)
     allowed_tools: list[str]  # nomes das tools que o modo atual pode usar
