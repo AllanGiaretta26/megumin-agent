@@ -72,6 +72,25 @@ export function useChat({ projectPath }: UseChatOptions = {}) {
                 m.id === agentMsgId ? { ...m, content: m.content + event.content } : m
               )
             );
+          } else if (event.type === "tool_call") {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === agentMsgId
+                  ? {
+                      ...m,
+                      toolCalls: [
+                        ...(m.toolCalls ?? []),
+                        {
+                          tool: event.tool,
+                          args: event.args,
+                          output: event.output,
+                          status: event.status,
+                        },
+                      ],
+                    }
+                  : m
+              )
+            );
           } else if (event.type === "done") {
             setMessages((prev) =>
               prev.map((m) =>

@@ -6,6 +6,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import remarkGfm from "remark-gfm";
 import { oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import type { ChatMessage } from "../types";
+import { ToolCallBlock } from "./tool-call-block";
 
 interface ChatMessageProps {
   message: ChatMessage;
@@ -131,6 +132,13 @@ export function ChatMessage({ message }: ChatMessageProps) {
           </ReactMarkdown>
           {message.isStreaming && message.content !== "" && (
             <span className="inline-block w-2 h-4 bg-megumin-primary animate-pulse align-middle ml-0.5" />
+          )}
+          {message.toolCalls && message.toolCalls.length > 0 && (
+            <div className="not-prose mt-2">
+              {message.toolCalls.map((tc, i) => (
+                <ToolCallBlock key={i} toolCall={tc} />
+              ))}
+            </div>
           )}
           </div>
         )}
