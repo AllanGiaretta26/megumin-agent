@@ -31,3 +31,6 @@ Thumbs.db
 BRIEFING.md
 CLAUDE.md
 AGENTS.md
+
+# Diretório de dados e configuração do Claude (nunca versionar)
+.claude/
