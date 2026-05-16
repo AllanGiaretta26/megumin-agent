@@ -75,7 +75,7 @@ Interface disponível em `http://localhost:3000`.
 | **Planejamento** | Leitura | Cria planos detalhados sem modificar nada |
 | **Edição Autônoma** | Leitura + Escrita | Edita código diretamente, lista alterações ao final |
 | **Dúvidas** | Leitura | Responde perguntas sobre o projeto, citando arquivos |
-| **Estudo** | — | Professor de programação geral, sem acesso ao projeto |
+| **Conversa Livre** | — | Chat geral com a Megumin — programação ou qualquer assunto, sem projeto |
 
 Modos com acesso a arquivos requerem um **Project Path** configurado em Configurações.
 
@@ -88,7 +88,7 @@ Modos com acesso a arquivos requerem um **Project Path** configurado em Configur
 | `Ctrl+2` | Modo Planejamento |
 | `Ctrl+3` | Modo Edição Autônoma |
 | `Ctrl+4` | Modo Dúvidas |
-| `Ctrl+5` | Modo Estudo |
+| `Ctrl+5` | Modo Conversa Livre |
 
 ---
 

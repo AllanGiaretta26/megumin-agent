@@ -5,7 +5,7 @@ a interface externa (ModeConfig) é sempre a mesma, mas cada modo
 configura allowed_tools e system_prompt de forma diferente.
 
 Em Java seria: interface Mode { List<String> getAllowedTools(); String getSystemPrompt(); }
-com implementações AgentMode, PlanningMode, StudyMode, etc.
+com implementações AgentMode, PlanningMode, FreeChatMode, etc.
 """
 from dataclasses import dataclass
 from pathlib import Path

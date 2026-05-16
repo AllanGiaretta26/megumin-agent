@@ -4,7 +4,7 @@ from pydantic import BaseModel
 class ChatRequest(BaseModel):
     message: str
     session_id: str | None = None  # None = sem sessão / conversa sem contexto
-    mode: str = "study"            # padrão seguro: sem acesso a arquivos
+    mode: str = "free_chat"        # padrão seguro: sem acesso a arquivos
     project_path: str | None = None
 
 
