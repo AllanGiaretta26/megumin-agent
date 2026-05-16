@@ -84,7 +84,7 @@ curl -X POST http://localhost:8000/chat \
   -H "Content-Type: application/json" \
   -d '{
     "message": "O que é recursão?",
-    "mode": "study"
+    "mode": "free_chat"
   }'
 ```
 
@@ -105,7 +105,7 @@ curl -X POST http://localhost:8000/chat \
 
 | Modo | Acesso a arquivos | Requer `project_path` |
 |---|---|---|
-| `study` | Nenhum | Não |
+| `free_chat` | Nenhum | Não |
 | `questions` | Leitura | Sim |
 | `planning` | Leitura | Sim |
 | `agent` | Leitura + Escrita | Sim |
