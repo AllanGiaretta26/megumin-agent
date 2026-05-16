@@ -102,7 +102,7 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
     async def generate():
         accumulated: list[str] = []
         try:
-            async for token in service._agent.astream(
+            async for item in service._agent.astream(
                 messages=history,
                 session_id=session_id,
                 mode=request.mode,
@@ -110,8 +110,14 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
                 drama_level=personality.drama_level,
                 language=personality.language,
             ):
-                accumulated.append(token)
-                yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
+                # astream emite str (tokens do LLM) ou dict (eventos como tool_call).
+                # Tokens vão acumulados para gravar no histórico; dicts são repassados
+                # ao SSE intactos.
+                if isinstance(item, dict):
+                    yield f"data: {json.dumps(item)}\n\n"
+                else:
+                    accumulated.append(item)
+                    yield f"data: {json.dumps({'type': 'token', 'content': item})}\n\n"
 
             full_response = "".join(accumulated)
             memory.save_message(session_id, "assistant", full_response)

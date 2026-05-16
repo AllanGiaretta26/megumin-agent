@@ -224,6 +224,33 @@ class AgentService:
                     tokens_emitted.append(token)
                     yield token
 
+            elif kind == "on_tool_end":
+                tool_name = event.get("name", "unknown")
+                tool_input = event.get("data", {}).get("input", {})
+                tool_output = event.get("data", {}).get("output")
+
+                # output pode ser ToolMessage, string, ou dict — normalizar para string
+                if hasattr(tool_output, "content"):
+                    output_str = str(tool_output.content)
+                else:
+                    output_str = str(tool_output) if tool_output is not None else ""
+
+                # detectar erro pela mensagem (sandbox, FileNotFound, etc)
+                status = "error" if output_str.lower().startswith(("error", "erro")) else "ok"
+
+                logger.info(
+                    f"[agente] astream tool_end | tool={tool_name} status={status} "
+                    f"output_len={len(output_str)}"
+                )
+
+                yield {
+                    "type": "tool_call",
+                    "tool": tool_name,
+                    "args": tool_input if isinstance(tool_input, dict) else {"value": str(tool_input)},
+                    "output": output_str,
+                    "status": status,
+                }
+
             elif kind == "on_chain_end" and name == "format_response":
                 # Fallback: Ollama não emite on_chat_model_stream para a resposta
                 # final quando há ToolMessages no contexto (limitação do tool_use).
