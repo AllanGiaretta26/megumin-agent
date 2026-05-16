@@ -3,8 +3,15 @@ import type { ChatMessage, ChatRequest, ChatResponse } from "./types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
-type StreamEvent =
+export type StreamEvent =
   | { type: "token"; content: string }
+  | {
+      type: "tool_call";
+      tool: string;
+      args: Record<string, unknown>;
+      output: string;
+      status: "ok" | "error";
+    }
   | { type: "done"; session_id: string }
   | { type: "error"; message: string };
 
