@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.modules.chat import router as chat_router
 from app.modules.config import router as config_router
+from app.modules.config.service import get_runtime_config_snapshot
 from app.shared.logger import logger
 
 app = FastAPI(title="Agent AI Megumin", version="0.1.0")
@@ -19,6 +20,13 @@ app.add_middleware(
 
 app.include_router(chat_router)
 app.include_router(config_router)
+
+
+@app.on_event("startup")
+def _capture_config_snapshot() -> None:
+    """Congela os campos críticos da config no boot para /restart-required."""
+    snapshot = get_runtime_config_snapshot()
+    logger.info(f"Config snapshot capturado no boot: {snapshot}")
 
 
 @app.get("/health")

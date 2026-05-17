@@ -12,3 +12,7 @@ class SessionNotFoundError(Exception):
 
 class ModeNotFoundError(Exception):
     """Levantada quando o nome do modo não é reconhecido pelo sistema."""
+
+
+class ModelListError(Exception):
+    """Levantada quando não é possível listar modelos do provider configurado."""
