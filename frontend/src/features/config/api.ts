@@ -21,9 +21,26 @@ export async function validatePath(
   });
 }
 
-export async function listModels(): Promise<{
-  models: string[];
-  ollama_available: boolean;
+export async function listModels(): Promise<{ models: string[] }> {
+  return request<{ models: string[] }>("/models");
+}
+
+export async function listModelsFromForm(params: {
+  provider: string;
+  api_base_url: string;
+  api_key?: string | null;
+}): Promise<{ models: string[] }> {
+  return request<{ models: string[] }>("/models", {
+    method: "POST",
+    body: JSON.stringify(params),
+  });
+}
+
+export async function getRestartRequired(): Promise<{
+  restart_required: boolean;
+  changed_fields: string[];
 }> {
-  return request<{ models: string[]; ollama_available: boolean }>("/models");
+  return request<{ restart_required: boolean; changed_fields: string[] }>(
+    "/config/restart-required"
+  );
 }
