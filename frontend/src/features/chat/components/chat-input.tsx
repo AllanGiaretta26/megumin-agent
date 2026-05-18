@@ -58,6 +58,9 @@ export function ChatInput({ onSend, isLoading, isStreaming, onStop }: ChatInputP
       >
         <textarea
           ref={textareaRef}
+          id="chat-message"
+          name="chat-message"
+          aria-label="Mensagem"
           value={value}
           onChange={(e) => {
             if (e.target.value.length <= MAX_CHARS) setValue(e.target.value);
