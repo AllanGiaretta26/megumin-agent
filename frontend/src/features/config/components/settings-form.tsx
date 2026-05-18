@@ -45,6 +45,9 @@ export function SettingsForm({ onCancel }: SettingsFormProps) {
   // Enquanto false, /models usa GET (config do disco) — sem race condition.
   // Quando true, /models usa POST com os valores ATUAIS do form.
   const [criticalFieldsTouched, setCriticalFieldsTouched] = useState(false);
+  // Fallback manual quando /models não devolve uma lista usável (erro, vazio,
+  // ou modelo salvo fora da lista). Permite digitar o nome do modelo a mão.
+  const [manualModelEntry, setManualModelEntry] = useState(false);
 
   const refreshRestartInfo = useCallback(async () => {
     try {
@@ -179,6 +182,9 @@ export function SettingsForm({ onCancel }: SettingsFormProps) {
           Diretório raiz do projeto que o agente poderá ler e modificar.
         </p>
         <PathPicker
+          id="project-path"
+          name="project-path"
+          ariaLabel="Caminho do projeto"
           value={draft.project_path ?? ""}
           onChange={(v) => update({ project_path: v || null })}
           onValidate={validatePath}
@@ -192,8 +198,10 @@ export function SettingsForm({ onCancel }: SettingsFormProps) {
         </h2>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="text-xs text-megumin-text-muted">Provider</label>
+            <label htmlFor="provider" className="text-xs text-megumin-text-muted">Provider</label>
             <select
+              id="provider"
+              name="provider"
               value={draft.provider}
               onChange={(e) => {
                 const next = e.target.value;
@@ -213,7 +221,7 @@ export function SettingsForm({ onCancel }: SettingsFormProps) {
             </select>
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs text-megumin-text-muted">Modelo</label>
+            <label htmlFor="model-name" className="text-xs text-megumin-text-muted">Modelo</label>
             {(() => {
               const savedMissing =
                 !!draft.model_name && !models.includes(draft.model_name);
@@ -226,9 +234,35 @@ export function SettingsForm({ onCancel }: SettingsFormProps) {
                   : models.length === 0
                     ? "Nenhum modelo encontrado"
                     : null;
+              const fallbackAvailable = !modelsLoading && (disabled || savedMissing);
+
+              if (manualModelEntry) {
+                return (
+                  <>
+                    <Input
+                      id="model-name"
+                      name="model-name"
+                      value={draft.model_name}
+                      onChange={(e) => update({ model_name: e.target.value })}
+                      placeholder="ex: qwen3.5:9b"
+                      className="bg-megumin-surface-raised border-megumin-border text-megumin-text-primary"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setManualModelEntry(false)}
+                      className="text-xs text-megumin-primary hover:underline mt-1"
+                    >
+                      Voltar ao dropdown
+                    </button>
+                  </>
+                );
+              }
+
               return (
                 <>
                   <select
+                    id="model-name"
+                    name="model-name"
                     value={draft.model_name}
                     onChange={(e) => update({ model_name: e.target.value })}
                     disabled={disabled}
@@ -249,6 +283,15 @@ export function SettingsForm({ onCancel }: SettingsFormProps) {
                   {modelsError && (
                     <p className="text-xs text-red-400 mt-1">{modelsError}</p>
                   )}
+                  {fallbackAvailable && (
+                    <button
+                      type="button"
+                      onClick={() => setManualModelEntry(true)}
+                      className="text-xs text-megumin-primary hover:underline mt-1"
+                    >
+                      Inserir manualmente
+                    </button>
+                  )}
                 </>
               );
             })()}
@@ -258,8 +301,10 @@ export function SettingsForm({ onCancel }: SettingsFormProps) {
         {draft.provider === "openai_compatible" && (
           <div className="space-y-3 pt-2 border-t border-megumin-border">
             <div className="space-y-1.5">
-              <label className="text-xs text-megumin-text-muted">Base URL</label>
+              <label htmlFor="api-base-url" className="text-xs text-megumin-text-muted">Base URL</label>
               <Input
+                id="api-base-url"
+                name="api-base-url"
                 value={draft.api_base_url ?? ""}
                 onChange={(e) => {
                   setCriticalFieldsTouched(true);
@@ -270,9 +315,11 @@ export function SettingsForm({ onCancel }: SettingsFormProps) {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs text-megumin-text-muted">API Key</label>
+              <label htmlFor="api-key" className="text-xs text-megumin-text-muted">API Key</label>
               <div className="relative">
                 <Input
+                  id="api-key"
+                  name="api-key"
                   type={showApiKey ? "text" : "password"}
                   value={newApiKey}
                   onChange={(e) => {
@@ -310,7 +357,7 @@ export function SettingsForm({ onCancel }: SettingsFormProps) {
 
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <label className="text-xs text-megumin-text-muted">
+            <label htmlFor="drama-level" className="text-xs text-megumin-text-muted">
               Nível de Drama
             </label>
             <span className="text-xs font-mono text-megumin-primary">
@@ -318,6 +365,8 @@ export function SettingsForm({ onCancel }: SettingsFormProps) {
             </span>
           </div>
           <input
+            id="drama-level"
+            name="drama-level"
             type="range"
             min={0}
             max={100}
@@ -336,12 +385,14 @@ export function SettingsForm({ onCancel }: SettingsFormProps) {
 
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <label className="text-xs text-megumin-text-muted">Temperature</label>
+            <label htmlFor="temperature" className="text-xs text-megumin-text-muted">Temperature</label>
             <span className="text-xs font-mono text-megumin-primary">
               {draft.personality.temperature.toFixed(1)}
             </span>
           </div>
           <input
+            id="temperature"
+            name="temperature"
             type="range"
             min={0}
             max={2}
@@ -365,6 +416,9 @@ export function SettingsForm({ onCancel }: SettingsFormProps) {
           <Globe className="h-4 w-4" /> Idioma
         </h2>
         <select
+          id="language"
+          name="language"
+          aria-label="Idioma"
           value={draft.personality.language}
           onChange={(e) => updatePersonality({ language: e.target.value })}
           className="w-full rounded-md border border-megumin-border bg-megumin-surface-raised px-3 py-2 text-sm text-megumin-text-primary focus:outline-none focus:ring-1 focus:ring-megumin-primary"
