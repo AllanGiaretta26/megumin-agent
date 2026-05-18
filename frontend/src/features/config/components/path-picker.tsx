@@ -10,11 +10,14 @@ interface PathPickerProps {
   value: string;
   onChange: (value: string) => void;
   onValidate: (path: string) => Promise<{ valid: boolean; error: string | null }>;
+  id?: string;
+  name?: string;
+  ariaLabel?: string;
 }
 
 type ValidationState = "idle" | "loading" | "valid" | "invalid";
 
-export function PathPicker({ value, onChange, onValidate }: PathPickerProps) {
+export function PathPicker({ value, onChange, onValidate, id, name, ariaLabel }: PathPickerProps) {
   const [validationState, setValidationState] = useState<ValidationState>("idle");
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -41,6 +44,9 @@ export function PathPicker({ value, onChange, onValidate }: PathPickerProps) {
     <div className="space-y-2">
       <div className="flex gap-2">
         <Input
+          id={id}
+          name={name}
+          aria-label={ariaLabel}
           value={value}
           onChange={(e) => handleChange(e.target.value)}
           placeholder="Ex: C:\dev\meu-projeto"

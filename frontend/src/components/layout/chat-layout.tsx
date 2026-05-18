@@ -123,6 +123,9 @@ export function ChatLayout() {
           isStreaming={isStreaming}
           activeMode={activeMode}
           onModeChange={setMode}
+          assistantName={
+            (config?.personality.drama_level ?? 0) > 0 ? "Megumin" : "Assistant"
+          }
         />
 
         {/* Input */}
