@@ -13,6 +13,7 @@ interface ChatContainerProps {
   isStreaming: boolean;
   activeMode: string;
   onModeChange: (mode: AgentModeId) => void;
+  assistantName?: string;
 }
 
 function WelcomeScreen({
@@ -74,6 +75,7 @@ export function ChatContainer({
   isStreaming,
   activeMode,
   onModeChange,
+  assistantName,
 }: ChatContainerProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -89,7 +91,7 @@ export function ChatContainer({
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4">
       {messages.map((message) => (
-        <ChatMessage key={message.id} message={message} />
+        <ChatMessage key={message.id} message={message} assistantName={assistantName} />
       ))}
       {/* LoadingBubble só quando loading sem streaming ativo — streaming tem seu próprio cursor na mensagem */}
       {isLoading && !isStreaming && <LoadingBubble />}

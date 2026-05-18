@@ -10,9 +10,10 @@ import { ToolCallBlock } from "./tool-call-block";
 
 interface ChatMessageProps {
   message: ChatMessage;
+  assistantName?: string;
 }
 
-export function ChatMessage({ message }: ChatMessageProps) {
+export function ChatMessage({ message, assistantName = "Megumin" }: ChatMessageProps) {
   const isUser = message.role === "user";
 
   return (
@@ -49,7 +50,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
       >
         {!isUser && (
           <p className="text-xs font-medium text-megumin-primary mb-1">
-            Megumin
+            {assistantName}
           </p>
         )}
 
