@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
 from app.core.exceptions import ModeNotFoundError, OllamaUnavailableError
+from app.modules.agent.events import TextChunkEvent, ToolResultEvent
 from app.modules.agent.modes import from_name as mode_from_name
 from app.modules.config import load_config
 from app.shared.logger import logger
@@ -110,14 +111,22 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
                 drama_level=personality.drama_level,
                 language=personality.language,
             ):
-                # astream emite str (tokens do LLM) ou dict (eventos como tool_call).
-                # Tokens vão acumulados para gravar no histórico; dicts são repassados
-                # ao SSE intactos.
-                if isinstance(item, dict):
-                    yield f"data: {json.dumps(item)}\n\n"
+                # astream emite AgentEvent (TextChunkEvent | ToolResultEvent).
+                # TextChunk acumula no histórico; ambos serializam via
+                # to_sse_data() para preservar paridade byte-a-byte com o
+                # formato anterior.
+                if isinstance(item, ToolResultEvent):
+                    yield item.to_sse_data()
+                elif isinstance(item, TextChunkEvent):
+                    accumulated.append(item.content)
+                    yield item.to_sse_data()
                 else:
-                    accumulated.append(item)
-                    yield f"data: {json.dumps({'type': 'token', 'content': item})}\n\n"
+                    # gerador yieldou algo fora do contrato — bug, não deve
+                    # acontecer em runtime normal.
+                    logger.error(
+                        "[stream] item fora do contrato AgentEvent: %s",
+                        type(item),
+                    )
 
             full_response = "".join(accumulated)
             memory.save_message(session_id, "assistant", full_response)

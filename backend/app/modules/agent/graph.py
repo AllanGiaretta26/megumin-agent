@@ -1,3 +1,4 @@
+from collections.abc import AsyncIterator
 from pathlib import Path
 
 from langchain_core.messages import SystemMessage
@@ -12,11 +13,13 @@ from app.modules.config.schemas import AppConfig
 from app.shared import render_template
 from app.shared.logger import logger
 
+from .events import AgentEvent, TextChunkEvent, ToolResultEvent
 from .modes import from_name as mode_from_name
 from .providers import build_provider
 from .providers.base import BaseLLMProvider
 from .state import AgentState
 from .tools import get_tools_by_names, list_directory, read_file, write_file
+from .tools.base import ToolResult
 
 # Lista completa de tools que o ToolNode pode executar.
 # O ToolNode precisa de todas registradas — a filtragem por modo ocorre
@@ -189,12 +192,18 @@ class AgentService:
         project_path: str = "",
         drama_level: int = 50,
         language: str = "pt-BR",
-    ):
-        """Async generator que emite tokens do LLM via astream_events.
+    ) -> AsyncIterator[AgentEvent]:
+        """Async generator que emite eventos tipados (TextChunkEvent /
+        ToolResultEvent) do domínio do agente.
 
         Quando o Ollama não suporta streaming após tool_use (limitação conhecida),
         on_chat_model_stream não dispara para a resposta final. O fallback captura
-        o output de format_response via on_chain_end e emite o texto inteiro.
+        o output de format_response via on_chain_end e emite o texto inteiro
+        como um TextChunkEvent só.
+
+        ValidationError NÃO é capturado: se algum ramo tentar construir um
+        evento com payload fora do contrato, a exception sobe (Ajuste 2 do
+        plano — fallback ruidoso).
         """
         logger.info(
             f"[agente] astream | session={session_id} mode={mode} "
@@ -224,34 +233,46 @@ class AgentService:
                 if hasattr(chunk, "content") and chunk.content:
                     token = str(chunk.content)
                     tokens_emitted.append(token)
-                    yield token
+                    yield TextChunkEvent(content=token)
 
             elif kind == "on_tool_end":
                 tool_name = event.get("name", "unknown")
                 tool_input = event.get("data", {}).get("input", {})
                 tool_output = event.get("data", {}).get("output")
 
-                # output pode ser ToolMessage, string, ou dict — normalizar para string
+                # output pode ser ToolMessage (caminho novo, com .artifact) ou
+                # string nua (tools ainda não migradas) — normalizar conteúdo.
                 if hasattr(tool_output, "content"):
                     output_str = str(tool_output.content)
                 else:
                     output_str = str(tool_output) if tool_output is not None else ""
 
-                # detectar erro pela mensagem (sandbox, FileNotFound, etc)
-                status = "error" if output_str.lower().startswith(("error", "erro")) else "ok"
+                # Status vem do ToolResult anexado como artifact da ToolMessage.
+                # Fallback ruidoso: se artifact não for ToolResult (tool não migrada
+                # ou LangChain não expôs), default é "error" + log — assumir "ok"
+                # repete a cegueira da heurística antiga.
+                artifact = getattr(tool_output, "artifact", None)
+                if isinstance(artifact, ToolResult):
+                    status = artifact.status
+                else:
+                    logger.error(
+                        f"[agente] tool {tool_name!r} não devolveu ToolResult como "
+                        f"artifact (artifact={type(artifact).__name__}). Marcando "
+                        f"status=error por segurança."
+                    )
+                    status = "error"
 
                 logger.info(
                     f"[agente] astream tool_end | tool={tool_name} status={status} "
                     f"output_len={len(output_str)}"
                 )
 
-                yield {
-                    "type": "tool_call",
-                    "tool": tool_name,
-                    "args": tool_input if isinstance(tool_input, dict) else {"value": str(tool_input)},
-                    "output": output_str,
-                    "status": status,
-                }
+                yield ToolResultEvent(
+                    tool=tool_name,
+                    args=tool_input if isinstance(tool_input, dict) else {"value": str(tool_input)},
+                    output=output_str,
+                    status=status,
+                )
 
             elif kind == "on_chain_end" and name == "format_response":
                 # Fallback: Ollama não emite on_chat_model_stream para a resposta
@@ -265,4 +286,4 @@ class AgentService:
                             f"[agente] astream fallback via format_response "
                             f"| len={len(response_text)}"
                         )
-                        yield response_text
+                        yield TextChunkEvent(content=response_text)
