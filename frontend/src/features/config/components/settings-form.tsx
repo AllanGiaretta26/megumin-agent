@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Bot, FolderOpen, Globe, Info, Sparkles } from "lucide-react";
+import { Bot, FolderOpen, Globe, Info, Save, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { getRestartRequired, listModels, listModelsFromForm } from "../api";
 import { useConfig } from "../hooks/use-config";
@@ -150,7 +150,13 @@ export function SettingsForm({ onCancel }: SettingsFormProps) {
   };
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
+    <form
+      className="space-y-6 max-w-2xl mx-auto"
+      onSubmit={(e) => {
+        e.preventDefault();
+        void handleSave();
+      }}
+    >
       {restartInfo?.required && (
         <div className="rounded-md border border-blue-500/40 bg-blue-500/10 px-4 py-3 flex items-start gap-3">
           <Info className="h-4 w-4 text-blue-400 mt-0.5 flex-shrink-0" />
@@ -305,6 +311,7 @@ export function SettingsForm({ onCancel }: SettingsFormProps) {
               <Input
                 id="api-base-url"
                 name="api-base-url"
+                autoComplete="url"
                 value={draft.api_base_url ?? ""}
                 onChange={(e) => {
                   setCriticalFieldsTouched(true);
@@ -321,6 +328,7 @@ export function SettingsForm({ onCancel }: SettingsFormProps) {
                   id="api-key"
                   name="api-key"
                   type={showApiKey ? "text" : "password"}
+                  autoComplete="current-password"
                   value={newApiKey}
                   onChange={(e) => {
                     setCriticalFieldsTouched(true);
@@ -439,17 +447,24 @@ export function SettingsForm({ onCancel }: SettingsFormProps) {
       )}
 
       <div className="flex justify-end gap-3 pb-8">
-        <Button variant="ghost" onClick={onCancel} className="text-megumin-text-secondary hover:text-megumin-text-primary">
+        <Button type="button" variant="ghost" onClick={onCancel} className="text-megumin-text-secondary hover:text-megumin-text-primary">
           Cancelar
         </Button>
         <Button
-          onClick={handleSave}
+          type="submit"
           disabled={saving}
           className="bg-megumin-primary hover:bg-megumin-primary/90 text-white"
         >
-          {saving ? "Salvando..." : "💾 Salvar"}
+          {saving ? (
+            "Salvando..."
+          ) : (
+            <>
+              <Save className="h-4 w-4" />
+              Salvar
+            </>
+          )}
         </Button>
       </div>
-    </div>
+    </form>
   );
 }
