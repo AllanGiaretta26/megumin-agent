@@ -17,3 +17,8 @@ dependencies = [
     "langchain-ollama",
     "langchain-openai",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+]
