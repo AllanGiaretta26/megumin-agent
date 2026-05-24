@@ -1,59 +1,87 @@
-# Agent AI Megumin
+# Megumin Agent
 
-> *"Meu nome é Megumin! A maior arquimaga da Crimson Demon Clan! E minha magia... é EXPLOSÃO!!!"*
+> Assistente de programação com personalidade inspirada na Megumin de
+> *KonoSuba*: dramática quando você quiser, profissional quando precisar.
 
-Agente de IA para assistência em programação com a personalidade dramática e teatral da Megumin de *Konosuba*. Projeto de bootcamp para aprender, na prática, construção de agentes de IA do zero — incluindo orquestração de estados (LangGraph), tool calling, streaming SSE e interface conversacional.
+Megumin Agent é um agente de IA para programação com backend FastAPI,
+orquestração LangGraph, tool calling, streaming via SSE e frontend Next.js.
+Ele pode conversar livremente, responder dúvidas sobre um projeto, planejar
+alterações e, nos modos com permissão, ler/listar/escrever arquivos dentro de
+um diretório autorizado.
 
-![Interface do Megumin Agent](docs/screenshot.png)
+![Tela principal do Megumin Agent](assets/menu.png)
+
+![Tela de configurações](assets/settings.png)
 
 ---
 
 ## Funcionalidades
 
-- **5 modos operacionais** — de professor paciente a editor autônomo de código
-- **Streaming token a token** — respostas em tempo real via SSE
-- **Personalidade configurável** — `drama_level` de 0 (profissional) a 100 (EXPLOSÃO!!!)
-- **Sandbox de arquivos** — o agente só acessa o diretório que você autorizar
-- **Tool calling** — lê, lista e escreve arquivos conforme o modo ativo
-- **Interface dark com tema Megumin** — roxo, vermelho e muita magia
+- **5 modos operacionais**: Agente, Planejamento, Edição Autônoma, Dúvidas e Conversa Livre.
+- **Streaming SSE**: respostas aparecem em tempo real no chat.
+- **Tool calling com contrato tipado**: tools retornam `ToolResult(status, content)`.
+- **Eventos de agente tipados**: `TextChunkEvent` e `ToolResultEvent` no caminho grafo → SSE.
+- **Sandbox de arquivos**: toda tool valida que o caminho fica dentro do `project_path`.
+- **Providers configuráveis**: Ollama local ou qualquer endpoint OpenAI-compatible.
+- **Personalidade ajustável**: `drama_level`, `temperature` e idioma via Settings.
+- **Tema Megumin**: interface escura em carmesim/âmbar, avatar gerado e foco visual no chat.
+
+---
+
+## Stack
+
+| Camada | Tecnologias |
+|---|---|
+| Backend | Python 3.14, FastAPI, Pydantic v2, LangGraph, LangChain |
+| LLM local | Ollama + `langchain-ollama` |
+| LLM externo | APIs OpenAI-compatible + `langchain-openai` |
+| Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS v4 |
+| UI | shadcn/ui, lucide-react, react-markdown |
+| Package managers | `uv` no backend, `npm` no frontend |
 
 ---
 
 ## Pré-requisitos
 
-| Requisito | Versão | Link |
-|-----------|--------|------|
-| Python | 3.11+ | [python.org](https://www.python.org/) |
-| uv | latest | [astral.sh/uv](https://docs.astral.sh/uv/) |
-| Node.js | 18+ | [nodejs.org](https://nodejs.org/) |
-| Ollama | latest | [ollama.com](https://ollama.com/) |
+| Requisito | Observação |
+|---|---|
+| Python | O projeto usa `.python-version` com `3.14` |
+| uv | Gerencia dependências e execução do backend |
+| Node.js | Necessário para Next.js 16 |
+| npm | Instala e executa o frontend |
+| Ollama | Necessário apenas se usar provider `ollama` local |
 
-### Baixar um modelo no Ollama
+Para uso local com Ollama:
 
 ```bash
 ollama pull qwen3.5:9b
 ```
 
+Para provider externo, configure `openai_compatible` na tela de Settings ou via
+`PUT /config`.
+
 ---
 
-## Como rodar
+## Como Rodar
 
 ### 1. Backend
 
 ```bash
 cd backend
-
-# Instala dependências
-uv sync
-
-# (Opcional) Copia variáveis de ambiente
-cp .env.example .env
-
-# Sobe o servidor
+uv sync --dev
 uv run uvicorn app.main:app --reload --port 8000
 ```
 
-API disponível em `http://localhost:8000`. Documentação interativa em `http://localhost:8000/docs`.
+Backend:
+
+- API: `http://localhost:8000`
+- Swagger: `http://localhost:8000/docs`
+
+Opcionalmente, copie o exemplo de env:
+
+```bash
+cp .env.example .env
+```
 
 ### 2. Frontend
 
@@ -63,50 +91,27 @@ npm install
 npm run dev
 ```
 
-Interface disponível em `http://localhost:3000`.
+Frontend:
 
----
-
-## Os 5 Modos
-
-| Modo | Acesso a Arquivos | Descrição |
-|------|:-----------------:|-----------|
-| **Agente** | Leitura + Escrita | Executa tarefas autonomamente, anunciando cada ação |
-| **Planejamento** | Leitura | Cria planos detalhados sem modificar nada |
-| **Edição Autônoma** | Leitura + Escrita | Edita código diretamente, lista alterações ao final |
-| **Dúvidas** | Leitura | Responde perguntas sobre o projeto, citando arquivos |
-| **Conversa Livre** | — | Chat geral com a Megumin — programação ou qualquer assunto, sem projeto |
-
-Modos com acesso a arquivos requerem um **Project Path** configurado em Configurações.
-
-### Atalhos de teclado
-
-| Atalho | Ação |
-|--------|------|
-| `Ctrl+K` | Nova conversa |
-| `Ctrl+1` | Modo Agente |
-| `Ctrl+2` | Modo Planejamento |
-| `Ctrl+3` | Modo Edição Autônoma |
-| `Ctrl+4` | Modo Dúvidas |
-| `Ctrl+5` | Modo Conversa Livre |
+- App: `http://localhost:3000`
 
 ---
 
 ## Configuração
 
-Acesse `/settings` na interface ou use a API:
+As configurações ficam em `backend/app/data/config.json`, que é gitignored para
+evitar versionar API keys.
+
+Você pode configurar pela interface em `/settings` ou pela API:
 
 ```bash
-# Ver configuração atual
-curl http://localhost:8000/config
-
-# Atualizar configuração
 curl -X PUT http://localhost:8000/config \
   -H "Content-Type: application/json" \
   -d '{
-    "project_path": "/caminho/do/seu/projeto",
-    "model_name": "qwen3.5:9b",
+    "project_path": "C:/caminho/do/projeto",
     "provider": "ollama",
+    "api_base_url": "http://localhost:11434",
+    "model_name": "qwen3.5:9b",
     "personality": {
       "drama_level": 75,
       "temperature": 0.7,
@@ -115,80 +120,147 @@ curl -X PUT http://localhost:8000/config \
   }'
 ```
 
-### Usando API externa (OpenAI-compatible)
+### Provider OpenAI-Compatible
 
 ```bash
 curl -X PUT http://localhost:8000/config \
   -H "Content-Type: application/json" \
   -d '{
     "provider": "openai_compatible",
-    "api_base_url": "https://api.openai.com/v1",
-    "api_key": "sk-...",
-    "model_name": "gpt-4o"
+    "api_base_url": "https://ollama.com/v1",
+    "api_key": "sua-chave",
+    "model_name": "gpt-oss:120b"
   }'
 ```
+
+O `GET /config` nunca devolve a API key real. Quando uma chave já existe, ele
+retorna o sentinel `"***"`, que pode ser reenviado para manter a chave salva.
+
+---
+
+## Modos
+
+| Modo | Arquivos | Descrição |
+|---|:---:|---|
+| **Agente** | Leitura + escrita | Executa tarefas de programação com tools. |
+| **Planejamento** | Leitura | Lê o projeto e propõe planos sem alterar arquivos. |
+| **Edição Autônoma** | Leitura + escrita | Modo existente, ainda bloqueado por decisão de confirmação interativa. |
+| **Dúvidas** | Leitura | Responde perguntas sobre o projeto configurado. |
+| **Conversa Livre** | Não usa projeto | Chat geral sem necessidade de `project_path`. |
+
+Modos com acesso a arquivos exigem `project_path` configurado.
+
+### Atalhos
+
+| Atalho | Ação |
+|---|---|
+| `Ctrl+K` | Nova conversa |
+| `Ctrl+1` | Agente |
+| `Ctrl+2` | Planejamento |
+| `Ctrl+3` | Edição Autônoma |
+| `Ctrl+4` | Dúvidas |
+| `Ctrl+5` | Conversa Livre |
+
+---
+
+## Tools do Agente
+
+As tools disponíveis no caminho agentic são:
+
+| Tool | Função |
+|---|---|
+| `read_file(path)` | Lê arquivo dentro do `project_path`. |
+| `list_directory(path)` | Lista diretório dentro do `project_path`. |
+| `write_file(path, content)` | Cria ou sobrescreve arquivo dentro do `project_path`. |
+
+Todas validam sandbox de path. Falhas de acesso, arquivo inexistente e erros de
+I/O retornam `ToolResult(status="error", content=...)`, sem derrubar o grafo.
+
+---
+
+## API
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `GET` | `/health` | Status da API e disponibilidade do Ollama local |
+| `POST` | `/chat/new` | Cria nova sessão |
+| `POST` | `/chat` | Envia mensagem e retorna resposta completa |
+| `POST` | `/chat/stream` | Envia mensagem com streaming SSE |
+| `GET` | `/chat/{session_id}/history` | Retorna histórico da sessão |
+| `GET` | `/config` | Retorna configuração com API key mascarada |
+| `PUT` | `/config` | Atualiza configuração |
+| `POST` | `/config/validate-path` | Valida diretório do projeto |
+| `GET` | `/config/restart-required` | Indica mudanças que afetam novas conversas |
+| `GET` | `/models` | Lista modelos do provider salvo |
+| `POST` | `/models` | Lista modelos usando valores atuais do formulário |
+
+---
+
+## Estrutura
+
+```text
+megumin-agent/
+├── assets/                         # Imagens usadas no README
+├── backend/
+│   ├── pyproject.toml
+│   └── app/
+│       ├── main.py                 # FastAPI bootstrap
+│       ├── core/                   # Settings, exceptions, sandbox
+│       ├── modules/
+│       │   ├── agent/              # LangGraph, modos, providers, tools
+│       │   ├── chat/               # Sessões e streaming
+│       │   └── config/             # Config persistida e modelos
+│       └── shared/                 # Logger e utilitários neutros
+└── frontend/
+    ├── public/assets/              # Avatar da Megumin usado na UI
+    └── src/
+        ├── app/                    # Rotas Next.js
+        ├── components/             # Layout e UI base
+        └── features/
+            ├── chat/
+            ├── config/
+            └── modes/
+```
+
+---
+
+## Verificação
+
+Backend:
+
+```bash
+cd backend
+uv run pytest
+```
+
+Frontend:
+
+```bash
+cd frontend
+npx tsc --noEmit
+npm run build
+```
+
+`npm run lint` atualmente aponta uma dívida conhecida em
+`frontend/src/features/config/components/settings-form.tsx`, relacionada à
+regra `react-hooks/set-state-in-effect`.
 
 ---
 
 ## Modelos Testados
 
-| Modelo | Tipo | Ferramentas | Personalidade |
-|--------|------|-------------|---------------|
-| qwen3.5:9b | Ollama local | ✅ Funciona | ⚠️ Parcial |
-| llama3.1:8b | Ollama local | ✅ Funciona | ❌ Ignora persona |
-| gemma4:e4b | Ollama local | ✅ Funciona | ❌ Ignora persona |
+| Modelo | Provider | Tools | Personalidade |
+|---|---|---:|---|
+| `qwen3.5:9b` | Ollama local | Sim | Parcial |
+| `llama3.1:8b` | Ollama local | Sim | Fraca |
+| `gemma4:e4b` | Ollama local | Sim | Fraca |
+| `gpt-oss:120b` | OpenAI-compatible/Ollama Cloud | Sim, com observações | Melhor |
 
-**Observação:** modelos locais pequenos (abaixo de 13B) tendem a ignorar instruções de roleplay via system prompt. As ferramentas (`read_file`, `write_file`, `list_directory`) funcionam corretamente em todos os modelos testados. Para a personalidade Megumin funcionar plenamente, recomenda-se usar modelos maiores via Ollama ou APIs externas como OpenRouter ou Gemini.
-
----
-
-## Endpoints da API
-
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | `/health` | Status da API e Ollama |
-| POST | `/chat/new` | Cria nova sessão |
-| POST | `/chat` | Envia mensagem (resposta completa) |
-| POST | `/chat/stream` | Envia mensagem (streaming SSE) |
-| GET | `/chat/{id}/history` | Histórico da sessão |
-| GET | `/config` | Configuração atual (api_key mascarada) |
-| PUT | `/config` | Atualiza configuração |
-| POST | `/config/validate-path` | Valida um diretório |
-| GET | `/models` | Lista modelos Ollama instalados |
+Modelos pequenos tendem a seguir as tools, mas ignorar parte da persona. Para
+mais fidelidade de personalidade, prefira modelos maiores ou providers externos.
 
 ---
 
-## Estrutura do Projeto
+## Licença
 
-```
-megumin-agent/
-├── backend/
-│   └── app/
-│       ├── main.py              # Bootstrap FastAPI
-│       ├── core/                # Settings, exceptions, sandbox de path
-│       ├── modules/
-│       │   ├── agent/           # LangGraph StateGraph, 5 modos, tools, providers
-│       │   ├── chat/            # Sessões, memória, router de chat
-│       │   └── config/          # Configuração persistida em JSON
-│       └── shared/              # Logger, tipos globais
-│
-└── frontend/
-    └── src/
-        ├── app/                 # Rotas Next.js (/, /settings)
-        ├── components/layout/   # Sidebar, ChatLayout
-        └── features/
-            ├── chat/            # Hook useChat, componentes de mensagem, API
-            ├── config/          # Hook useConfig, formulário de settings
-            └── modes/           # Definição dos 5 modos
-```
-
----
-
-## Stack
-
-| Camada | Tecnologias |
-|--------|-------------|
-| Backend | Python 3.11+, FastAPI, LangGraph, LangChain, langchain-ollama |
-| Frontend | Next.js 16, TypeScript, Tailwind CSS v4, shadcn/ui, react-markdown |
-| LLM local | Ollama |
-| LLM externo | Qualquer API OpenAI-compatible |
+Distribuído sob licença MIT. Veja [`LICENSE`](LICENSE).
