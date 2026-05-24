@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import type { AgentModeId } from "@/features/modes/types";
+import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { AGENT_MODES } from "../../modes/constants";
 import type { ChatMessage as ChatMessageType } from "../types";
@@ -25,28 +26,32 @@ function WelcomeScreen({
 }) {
   return (
     <div className="flex flex-col items-center justify-center h-full gap-6 px-8 text-center">
-      <div
-        className="text-6xl select-none"
-        style={{ filter: "drop-shadow(0 0 20px rgba(124,58,237,0.6))" }}
-      >
-        🧙‍♀️
+      <div className="relative h-28 w-28 overflow-hidden rounded-full border border-megumin-primary/70 shadow-[0_0_42px_rgba(245,158,11,0.32)]">
+        <Image
+          src="/assets/megumin-profile.png"
+          alt="Megumin"
+          fill
+          sizes="112px"
+          className="object-cover"
+          priority
+        />
       </div>
 
       <div>
         <h1
-          className="text-3xl font-bold text-megumin-text-primary"
+          className="text-3xl font-bold text-megumin-text-primary tracking-wide"
           style={{ fontFamily: "serif" }}
         >
           Megumin
         </h1>
         <p className="text-sm text-megumin-primary mt-1 font-medium">
-          Arch-wizard · Crimson Demon
+          Crimson Demon · Explosion Magic
         </p>
       </div>
 
       <p className="text-sm text-megumin-text-secondary max-w-sm">
-        Assistente de programação pronto para invocar soluções. Selecione um
-        modo e envie sua primeira mensagem.
+        Assistente de programação pronto para canalizar foco, precisão e
+        explosões controladas. Selecione um modo e envie sua primeira mensagem.
       </p>
 
       <div className="flex flex-wrap gap-2 justify-center max-w-xs">
@@ -57,8 +62,8 @@ function WelcomeScreen({
             onClick={() => onModeChange(mode.id)}
             className={
               mode.id === activeMode
-                ? "border-megumin-primary text-megumin-primary bg-megumin-primary/10 cursor-pointer hover:bg-megumin-primary/20 transition-colors"
-                : "border-megumin-border text-megumin-text-muted cursor-pointer hover:border-megumin-primary hover:text-megumin-primary transition-colors"
+                ? "border-megumin-primary text-megumin-primary bg-megumin-primary/12 cursor-pointer hover:bg-megumin-primary/20 transition-colors"
+                : "border-megumin-border text-megumin-text-muted cursor-pointer hover:border-megumin-primary hover:text-megumin-primary hover:bg-megumin-surface-raised transition-colors"
             }
           >
             {mode.label}

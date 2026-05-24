@@ -8,7 +8,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-megumin-background">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-megumin-border bg-megumin-surface/80 backdrop-blur-sm">
+      <header className="sticky top-0 z-10 border-b border-megumin-border bg-megumin-surface/90 backdrop-blur-sm shadow-[0_1px_0_rgba(245,158,11,0.08)]">
         <div className="max-w-2xl mx-auto px-6 py-4 flex items-center gap-4">
           <Link
             href="/"

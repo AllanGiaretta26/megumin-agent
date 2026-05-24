@@ -40,49 +40,50 @@
   --radius-xl: calc(var(--radius) * 1.4);
 
   /* Megumin custom palette — disponível como classes Tailwind */
-  --color-megumin-primary: #7c3aed;
-  --color-megumin-glow: #9d5cff;
-  --color-megumin-accent: #dc2626;
-  --color-megumin-warm: #f97316;
-  --color-megumin-surface: #12121a;
-  --color-megumin-surface-raised: #1a1a26;
-  --color-megumin-border: #2a2a3d;
-  --color-megumin-text-primary: #f1f0ff;
-  --color-megumin-text-secondary: #8b8aa8;
-  --color-megumin-text-muted: #4a4966;
-  --color-megumin-user-bubble: #1e1b4b;
-  --color-megumin-agent-bubble: #150d1f;
+  --color-megumin-primary: #f59e0b;
+  --color-megumin-glow: #a855f7;
+  --color-megumin-accent: #ef4444;
+  --color-megumin-warm: #fb923c;
+  --color-megumin-background: #080607;
+  --color-megumin-surface: #140b0d;
+  --color-megumin-surface-raised: #211114;
+  --color-megumin-border: #4a2323;
+  --color-megumin-text-primary: #fff7ed;
+  --color-megumin-text-secondary: #d8b4a0;
+  --color-megumin-text-muted: #8a6359;
+  --color-megumin-user-bubble: #2a1711;
+  --color-megumin-agent-bubble: #220d11;
 }
 
 /* Override shadcn slate com o tema Megumin (aplica só no modo dark) */
 .dark {
-  --background: #0a0a0f;
-  --foreground: #f1f0ff;
-  --card: #12121a;
-  --card-foreground: #f1f0ff;
-  --popover: #12121a;
-  --popover-foreground: #f1f0ff;
-  --primary: #7c3aed;
-  --primary-foreground: #f1f0ff;
-  --secondary: #1a1a26;
-  --secondary-foreground: #f1f0ff;
-  --muted: #1a1a26;
-  --muted-foreground: #8b8aa8;
-  --accent: #1a1a26;
-  --accent-foreground: #f1f0ff;
-  --destructive: #dc2626;
-  --border: #2a2a3d;
-  --input: #2a2a3d;
-  --ring: #7c3aed;
+  --background: #080607;
+  --foreground: #fff7ed;
+  --card: #140b0d;
+  --card-foreground: #fff7ed;
+  --popover: #140b0d;
+  --popover-foreground: #fff7ed;
+  --primary: #f59e0b;
+  --primary-foreground: #1a0808;
+  --secondary: #211114;
+  --secondary-foreground: #fff7ed;
+  --muted: #211114;
+  --muted-foreground: #d8b4a0;
+  --accent: #2d1418;
+  --accent-foreground: #fff7ed;
+  --destructive: #ef4444;
+  --border: #4a2323;
+  --input: #4a2323;
+  --ring: #f59e0b;
   --radius: 0.5rem;
-  --sidebar: #12121a;
-  --sidebar-foreground: #f1f0ff;
-  --sidebar-primary: #7c3aed;
-  --sidebar-primary-foreground: #f1f0ff;
-  --sidebar-accent: #1a1a26;
-  --sidebar-accent-foreground: #f1f0ff;
-  --sidebar-border: #2a2a3d;
-  --sidebar-ring: #7c3aed;
+  --sidebar: #140b0d;
+  --sidebar-foreground: #fff7ed;
+  --sidebar-primary: #f59e0b;
+  --sidebar-primary-foreground: #1a0808;
+  --sidebar-accent: #211114;
+  --sidebar-accent-foreground: #fff7ed;
+  --sidebar-border: #4a2323;
+  --sidebar-ring: #f59e0b;
 }
 
 @layer base {
@@ -91,13 +92,24 @@
   }
   body {
     @apply bg-background text-foreground;
+    background:
+      linear-gradient(135deg, rgba(239, 68, 68, 0.16) 0%, transparent 28%),
+      linear-gradient(315deg, rgba(168, 85, 247, 0.14) 0%, transparent 32%),
+      repeating-linear-gradient(
+        90deg,
+        rgba(245, 158, 11, 0.035) 0,
+        rgba(245, 158, 11, 0.035) 1px,
+        transparent 1px,
+        transparent 46px
+      ),
+      #080607;
   }
   html {
     @apply font-sans;
   }
 }
 
-/* Scrollbar customizada — fina, roxa semitransparente */
+/* Scrollbar customizada — fina, âmbar semitransparente */
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -106,11 +118,11 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(124, 58, 237, 0.4);
+  background: rgba(245, 158, 11, 0.45);
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(124, 58, 237, 0.7);
+  background: rgba(251, 146, 60, 0.8);
 }
 
 /* Animação de entrada para mensagens */
@@ -140,7 +152,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #7c3aed;
+  background: #f59e0b;
   animation: dot-pulse 1.4s ease-in-out infinite;
 }
 .loading-dot:nth-child(2) { animation-delay: 0.2s; }

@@ -38,8 +38,8 @@ export function ModeSelector({ activeMode, onModeChange }: ModeSelectorProps) {
             className={cn(
               "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all duration-150",
               isActive
-                ? "bg-megumin-primary/15 border-l-2 border-megumin-primary text-megumin-text-primary"
-                : "border-l-2 border-transparent text-megumin-text-secondary hover:bg-megumin-surface-raised hover:text-megumin-text-primary"
+                ? "bg-megumin-primary/12 border-l-2 border-megumin-primary text-megumin-text-primary shadow-[inset_0_0_0_1px_rgba(245,158,11,0.08)]"
+                : "border-l-2 border-transparent text-megumin-text-secondary hover:bg-megumin-surface-raised hover:text-megumin-text-primary hover:border-megumin-accent/60"
             )}
           >
             {Icon && (

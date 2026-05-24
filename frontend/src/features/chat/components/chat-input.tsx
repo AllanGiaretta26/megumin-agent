@@ -47,13 +47,13 @@ export function ChatInput({ onSend, isLoading, isStreaming, onStop }: ChatInputP
   const remaining = MAX_CHARS - value.length;
 
   return (
-    <div className="border-t border-megumin-border bg-megumin-surface p-4">
+    <div className="border-t border-megumin-border bg-megumin-surface/95 p-4 shadow-[0_-1px_0_rgba(245,158,11,0.08)]">
       <div
         className={cn(
-          "flex items-end gap-2 rounded-xl border bg-megumin-surface-raised p-3 transition-all duration-200",
+          "flex items-end gap-2 rounded-xl border bg-megumin-surface-raised/95 p-3 transition-all duration-200",
           isLoading
             ? "border-megumin-border opacity-60"
-            : "border-megumin-border focus-within:border-megumin-primary focus-within:shadow-[0_0_0_2px_rgba(124,58,237,0.2)]"
+            : "border-megumin-border focus-within:border-megumin-primary focus-within:shadow-[0_0_0_2px_rgba(245,158,11,0.18),0_0_28px_rgba(239,68,68,0.12)]"
         )}
       >
         <textarea
@@ -103,8 +103,8 @@ export function ChatInput({ onSend, isLoading, isStreaming, onStop }: ChatInputP
               onClick={handleSend}
               disabled={isLoading || !value.trim()}
               className={cn(
-                "h-8 w-8 rounded-lg bg-megumin-primary text-white transition-all duration-200",
-                "hover:bg-megumin-glow hover:shadow-[0_0_12px_rgba(124,58,237,0.6)]",
+                "h-8 w-8 rounded-lg bg-megumin-primary text-[#1a0808] transition-all duration-200",
+                "hover:bg-megumin-warm hover:shadow-[0_0_14px_rgba(245,158,11,0.48)]",
                 "disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
               )}
             >
