@@ -264,3 +264,6 @@ mais fidelidade de personalidade, prefira modelos maiores ou providers externos.
 ## Licença
 
 Distribuído sob licença MIT. Veja [`LICENSE`](LICENSE).
+
+---
+Desenvolvido por [Allan Giaretta](https://github.com/AllanGiaretta26)
