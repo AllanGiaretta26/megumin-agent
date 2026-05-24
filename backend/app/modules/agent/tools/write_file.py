@@ -7,15 +7,14 @@ from app.core.exceptions import PathTraversalError
 from app.core.security import validate_path
 from app.shared.logger import logger
 
-from .base import ToolResult
+from .base import ToolResult, io_error_result
 
 
 def _write_file_impl(path: str, content: str, project_path: str) -> ToolResult:
     """Lógica pura do write_file — testável sem LangChain.
 
     Retorna ToolResult com status explícito. Não levanta PathTraversalError
-    (captura e converte em ToolResult error). Outras exceções de I/O
-    ainda propagam (dívida #21).
+    nem OSError de I/O real (captura e converte em ToolResult error).
     """
     logger.info(f"[tool] write_file | path={path}")
     try:
@@ -28,6 +27,8 @@ def _write_file_impl(path: str, content: str, project_path: str) -> ToolResult:
     except PathTraversalError as exc:
         logger.error(f"[tool] write_file bloqueado: {exc}")
         return ToolResult(status="error", content=f"Acesso negado: {exc}")
+    except OSError as exc:
+        return io_error_result("write_file", path, exc)
 
 
 @tool(response_format="content_and_artifact")
