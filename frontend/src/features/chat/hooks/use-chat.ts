@@ -72,7 +72,7 @@ export function useChat({ projectPath }: UseChatOptions = {}) {
                 m.id === agentMsgId ? { ...m, content: m.content + event.content } : m
               )
             );
-          } else if (event.type === "tool_call") {
+          } else if (event.type === "tool_call" || event.type === "tool_result") {
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === agentMsgId

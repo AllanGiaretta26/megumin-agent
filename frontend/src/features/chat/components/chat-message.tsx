@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import remarkGfm from "remark-gfm";
@@ -26,15 +27,18 @@ export function ChatMessage({ message, assistantName = "Megumin" }: ChatMessageP
       {/* Avatar */}
       <div className="flex-shrink-0">
         {isUser ? (
-          <div className="w-8 h-8 rounded-full bg-megumin-user-bubble border border-megumin-border flex items-center justify-center text-sm font-medium text-megumin-text-secondary">
+          <div className="w-8 h-8 rounded-full bg-megumin-user-bubble border border-megumin-primary/35 flex items-center justify-center text-sm font-medium text-megumin-primary shadow-[inset_0_0_12px_rgba(245,158,11,0.12)]">
             U
           </div>
         ) : (
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-lg"
-            style={{ boxShadow: "0 0 12px rgba(124,58,237,0.5)" }}
-          >
-            🧙‍♀️
+          <div className="relative h-8 w-8 overflow-hidden rounded-full border border-megumin-primary/60 shadow-[0_0_14px_rgba(245,158,11,0.36)]">
+            <Image
+              src="/assets/megumin-profile.png"
+              alt={assistantName}
+              fill
+              sizes="32px"
+              className="object-cover"
+            />
           </div>
         )}
       </div>
@@ -42,10 +46,10 @@ export function ChatMessage({ message, assistantName = "Megumin" }: ChatMessageP
       {/* Bubble */}
       <div
         className={cn(
-          "max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed",
+          "max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm",
           isUser
-            ? "bg-megumin-user-bubble border border-megumin-primary/30 text-megumin-text-primary rounded-tr-sm"
-            : "bg-megumin-agent-bubble border border-megumin-border text-megumin-text-primary rounded-tl-sm"
+            ? "bg-megumin-user-bubble border border-megumin-primary/35 text-megumin-text-primary rounded-tr-sm shadow-[0_0_0_1px_rgba(239,68,68,0.06)]"
+            : "bg-megumin-agent-bubble border border-megumin-border text-megumin-text-primary rounded-tl-sm shadow-[0_0_0_1px_rgba(245,158,11,0.06)]"
         )}
       >
         {!isUser && (
@@ -151,11 +155,14 @@ export function ChatMessage({ message, assistantName = "Megumin" }: ChatMessageP
 export function LoadingBubble() {
   return (
     <div className="flex gap-3 flex-row animate-fade-slide-in">
-      <div
-        className="w-8 h-8 rounded-full flex items-center justify-center text-lg flex-shrink-0"
-        style={{ boxShadow: "0 0 12px rgba(124,58,237,0.5)" }}
-      >
-        🧙‍♀️
+      <div className="relative h-8 w-8 overflow-hidden rounded-full border border-megumin-primary/60 shadow-[0_0_14px_rgba(245,158,11,0.36)] flex-shrink-0">
+        <Image
+          src="/assets/megumin-profile.png"
+          alt="Megumin"
+          fill
+          sizes="32px"
+          className="object-cover"
+        />
       </div>
       <div className="bg-megumin-agent-bubble border border-megumin-border rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-1">
         <span className="loading-dot" />

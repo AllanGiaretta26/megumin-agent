@@ -12,6 +12,13 @@ export type StreamEvent =
       output: string;
       status: "ok" | "error";
     }
+  | {
+      type: "tool_result";
+      tool: string;
+      args: Record<string, unknown>;
+      output: string;
+      status: "ok" | "error";
+    }
   | { type: "done"; session_id: string }
   | { type: "error"; message: string };
 

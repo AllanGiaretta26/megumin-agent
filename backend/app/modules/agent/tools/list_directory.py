@@ -7,7 +7,7 @@ from app.core.exceptions import PathTraversalError
 from app.core.security import validate_path
 from app.shared.logger import logger
 
-from .base import ToolResult
+from .base import ToolResult, io_error_result
 
 _IGNORED = {".git", "__pycache__", "node_modules", ".venv"}
 
@@ -16,8 +16,7 @@ def _list_directory_impl(path: str, project_path: str) -> ToolResult:
     """Lógica pura do list_directory — testável sem LangChain.
 
     Retorna ToolResult com status explícito. Não levanta PathTraversalError
-    (captura e converte em ToolResult error). Outras exceções de I/O
-    ainda propagam (dívida #21).
+    nem OSError de I/O real (captura e converte em ToolResult error).
     """
     logger.info(f"[tool] list_directory | path={path}")
     try:
@@ -40,6 +39,8 @@ def _list_directory_impl(path: str, project_path: str) -> ToolResult:
     except PathTraversalError as exc:
         logger.error(f"[tool] list_directory bloqueado: {exc}")
         return ToolResult(status="error", content=f"Acesso negado: {exc}")
+    except OSError as exc:
+        return io_error_result("list_directory", path, exc)
 
 
 @tool(response_format="content_and_artifact")

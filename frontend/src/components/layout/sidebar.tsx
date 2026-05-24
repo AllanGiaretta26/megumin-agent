@@ -6,6 +6,7 @@ import { ModeSelector } from "@/features/modes/components/mode-selector";
 import type { AgentModeId } from "@/features/modes/types";
 import { cn } from "@/lib/utils";
 import { Plus, Settings, X } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 interface SidebarProps {
@@ -14,7 +15,9 @@ interface SidebarProps {
   onNewConversation: () => void;
   isOpen: boolean;
   onClose: () => void;
+  backendAvailable?: boolean;
   ollamaAvailable?: boolean;
+  provider?: string;
 }
 
 export function Sidebar({
@@ -23,8 +26,21 @@ export function Sidebar({
   onNewConversation,
   isOpen,
   onClose,
+  backendAvailable,
   ollamaAvailable,
+  provider,
 }: SidebarProps) {
+  const showStatus = backendAvailable !== undefined;
+  const isOllamaProvider = provider === "ollama";
+  const statusOk = backendAvailable && (!isOllamaProvider || ollamaAvailable);
+  const statusLabel = !backendAvailable
+    ? "Backend offline"
+    : isOllamaProvider
+      ? ollamaAvailable
+        ? "Ollama conectado"
+        : "Ollama offline"
+      : "Backend conectado";
+
   return (
     <>
       {/* Backdrop mobile */}
@@ -44,14 +60,15 @@ export function Sidebar({
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {/* Header com gradiente */}
+        {/* Header */}
         <div
-          className="px-4 py-5 relative"
+          className="px-4 py-5 relative overflow-hidden"
           style={{
             background:
-              "linear-gradient(180deg, #1a0a2e 0%, #12121a 100%)",
+              "linear-gradient(180deg, #351014 0%, #140b0d 72%, #0b0708 100%)",
           }}
         >
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-megumin-primary/70 to-transparent" />
           {/* Botão fechar mobile */}
           <button
             onClick={onClose}
@@ -62,35 +79,35 @@ export function Sidebar({
 
           {/* Avatar */}
           <div className="flex items-center gap-3">
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center text-2xl flex-shrink-0"
-              style={{
-                background:
-                  "radial-gradient(circle, #3b0764 0%, #1a0a2e 100%)",
-                boxShadow: "0 0 20px rgba(124,58,237,0.4)",
-              }}
-            >
-              🧙‍♀️
+            <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-megumin-primary/60 shadow-[0_0_24px_rgba(245,158,11,0.35)]">
+              <Image
+                src="/assets/megumin-profile.png"
+                alt="Megumin"
+                fill
+                sizes="48px"
+                className="object-cover"
+                priority
+              />
             </div>
             <div>
               <h2
-                className="text-base font-bold text-megumin-text-primary leading-none"
+                className="text-base font-bold text-megumin-text-primary leading-none tracking-wide"
                 style={{ fontFamily: "serif" }}
               >
                 Megumin
               </h2>
-              <p className="text-xs text-megumin-primary mt-0.5">
-                Arch-wizard · Crimson Demon
+              <p className="text-xs text-megumin-primary mt-0.5 font-medium">
+                Crimson Demon · Explosion
               </p>
-              {ollamaAvailable !== undefined && (
+              {showStatus && (
                 <p
                   className={cn(
                     "text-xs mt-1 flex items-center gap-1",
-                    ollamaAvailable ? "text-green-400" : "text-red-400"
+                    statusOk ? "text-emerald-400" : "text-red-400"
                   )}
                 >
                   <span className="text-base leading-none">●</span>
-                  {ollamaAvailable ? "Ollama conectado" : "Ollama offline"}
+                  {statusLabel}
                 </p>
               )}
             </div>

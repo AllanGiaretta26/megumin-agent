@@ -20,7 +20,7 @@ function truncatePath(path: string, maxLen = 32): string {
 
 export function ChatLayout() {
   const { config } = useConfig();
-  const { ollamaAvailable } = useOllamaStatus();
+  const { backendAvailable, ollamaAvailable } = useOllamaStatus();
   const {
     messages,
     sessionId,
@@ -58,20 +58,22 @@ export function ChatLayout() {
   }, [startNewConversation, setMode]);
 
   return (
-    <div className="flex h-full overflow-hidden">
+    <div className="flex h-full overflow-hidden bg-[linear-gradient(180deg,rgba(53,16,20,0.24)_0%,rgba(8,6,7,0.92)_36%,rgba(8,6,7,1)_100%)]">
       <Sidebar
         activeMode={activeMode}
         onModeChange={setMode}
         onNewConversation={startNewConversation}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
+        backendAvailable={backendAvailable}
         ollamaAvailable={ollamaAvailable}
+        provider={config?.provider}
       />
 
       {/* Área principal */}
       <div className="flex flex-col flex-1 min-w-0">
         {/* Header da área de chat */}
-        <header className="flex items-center gap-3 px-4 py-3 border-b border-megumin-border bg-megumin-surface">
+        <header className="flex items-center gap-3 px-4 py-3 border-b border-megumin-border bg-megumin-surface/95 shadow-[0_1px_0_rgba(245,158,11,0.08)]">
           {/* Botão hamburguer mobile */}
           <button
             onClick={() => setIsSidebarOpen(true)}
@@ -84,7 +86,7 @@ export function ChatLayout() {
             <span className="text-xs font-semibold uppercase tracking-wider text-megumin-text-muted shrink-0">
               Modo
             </span>
-            <span className="text-sm font-medium text-megumin-primary shrink-0">
+            <span className="text-sm font-semibold text-megumin-primary shrink-0">
               {activeModeLabel}
             </span>
 
