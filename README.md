@@ -1,13 +1,16 @@
 # Megumin Agent
 
-> Assistente de programação com personalidade inspirada na Megumin de
-> *KonoSuba*: dramática quando você quiser, profissional quando precisar.
+![Python](https://img.shields.io/badge/Python-3.14-blue?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)
+![LangGraph](https://img.shields.io/badge/LangGraph-agente-purple)
+![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
+![Licença](https://img.shields.io/badge/licença-MIT-green)
 
-Megumin Agent é um agente de IA para programação com backend FastAPI,
-orquestração LangGraph, tool calling, streaming via SSE e frontend Next.js.
-Ele pode conversar livremente, responder dúvidas sobre um projeto, planejar
-alterações e, nos modos com permissão, ler/listar/escrever arquivos dentro de
-um diretório autorizado.
+> Assistente de programação com personalidade inspirada na Megumin de *KonoSuba*: dramática quando você quiser, profissional quando precisar.
+
+Megumin Agent é um agente de IA para programação com backend FastAPI, orquestração LangGraph, tool calling, streaming via SSE e frontend Next.js. Ele pode conversar livremente, responder dúvidas sobre um projeto, planejar alterações e, nos modos com permissão, ler, listar e escrever arquivos dentro de um diretório autorizado.
 
 ![Tela principal do Megumin Agent](assets/menu.png)
 
@@ -57,12 +60,11 @@ Para uso local com Ollama:
 ollama pull qwen3.5:9b
 ```
 
-Para provider externo, configure `openai_compatible` na tela de Settings ou via
-`PUT /config`.
+Para provider externo, configure `openai_compatible` na tela de Settings ou via `PUT /config`.
 
 ---
 
-## Como Rodar
+## Como Instalar e Rodar
 
 ### 1. Backend
 
@@ -71,8 +73,6 @@ cd backend
 uv sync --dev
 uv run uvicorn app.main:app --reload --port 8000
 ```
-
-Backend:
 
 - API: `http://localhost:8000`
 - Swagger: `http://localhost:8000/docs`
@@ -91,18 +91,15 @@ npm install
 npm run dev
 ```
 
-Frontend:
-
 - App: `http://localhost:3000`
 
 ---
 
 ## Configuração
 
-As configurações ficam em `backend/app/data/config.json`, que é gitignored para
-evitar versionar API keys.
+As configurações ficam em `backend/app/data/config.json`, que é gitignored para evitar versionar API keys.
 
-Você pode configurar pela interface em `/settings` ou pela API:
+Você pode configurar pela interface em `/settings` ou diretamente pela API:
 
 ```bash
 curl -X PUT http://localhost:8000/config \
@@ -133,8 +130,7 @@ curl -X PUT http://localhost:8000/config \
   }'
 ```
 
-O `GET /config` nunca devolve a API key real. Quando uma chave já existe, ele
-retorna o sentinel `"***"`, que pode ser reenviado para manter a chave salva.
+O `GET /config` nunca devolve a API key real. Quando uma chave já existe, ele retorna o sentinel `"***"`, que pode ser reenviado para manter a chave salva.
 
 ---
 
@@ -144,7 +140,7 @@ retorna o sentinel `"***"`, que pode ser reenviado para manter a chave salva.
 |---|:---:|---|
 | **Agente** | Leitura + escrita | Executa tarefas de programação com tools. |
 | **Planejamento** | Leitura | Lê o projeto e propõe planos sem alterar arquivos. |
-| **Edição Autônoma** | Leitura + escrita | Modo existente, ainda bloqueado por decisão de confirmação interativa. |
+| **Edição Autônoma** | Leitura + escrita | Edição dirigida com maior autonomia de execução. |
 | **Dúvidas** | Leitura | Responde perguntas sobre o projeto configurado. |
 | **Conversa Livre** | Não usa projeto | Chat geral sem necessidade de `project_path`. |
 
@@ -165,16 +161,13 @@ Modos com acesso a arquivos exigem `project_path` configurado.
 
 ## Tools do Agente
 
-As tools disponíveis no caminho agentic são:
-
 | Tool | Função |
 |---|---|
 | `read_file(path)` | Lê arquivo dentro do `project_path`. |
 | `list_directory(path)` | Lista diretório dentro do `project_path`. |
 | `write_file(path, content)` | Cria ou sobrescreve arquivo dentro do `project_path`. |
 
-Todas validam sandbox de path. Falhas de acesso, arquivo inexistente e erros de
-I/O retornam `ToolResult(status="error", content=...)`, sem derrubar o grafo.
+Todas validam sandbox de path. Falhas de acesso, arquivo inexistente e erros de I/O retornam `ToolResult(status="error", content=...)`, sem derrubar o grafo.
 
 ---
 
@@ -239,25 +232,31 @@ Frontend:
 cd frontend
 npx tsc --noEmit
 npm run build
+npm run lint
 ```
-
-`npm run lint` atualmente aponta uma dívida conhecida em
-`frontend/src/features/config/components/settings-form.tsx`, relacionada à
-regra `react-hooks/set-state-in-effect`.
 
 ---
 
 ## Modelos Testados
 
 | Modelo | Provider | Tools | Personalidade |
-|---|---|---:|---|
+|---|---|:---:|---|
 | `qwen3.5:9b` | Ollama local | Sim | Parcial |
 | `llama3.1:8b` | Ollama local | Sim | Fraca |
 | `gemma4:e4b` | Ollama local | Sim | Fraca |
-| `gpt-oss:120b` | OpenAI-compatible/Ollama Cloud | Sim, com observações | Melhor |
+| `gpt-oss:120b` | OpenAI-compatible / Ollama Cloud | Sim | Melhor |
 
-Modelos pequenos tendem a seguir as tools, mas ignorar parte da persona. Para
-mais fidelidade de personalidade, prefira modelos maiores ou providers externos.
+Modelos pequenos tendem a seguir as tools, mas ignorar parte da persona. Para mais fidelidade de personalidade, prefira modelos maiores ou providers externos.
+
+---
+
+## Como Contribuir
+
+1. Faça um fork do repositório
+2. Crie uma branch para sua feature: `git checkout -b feat/minha-feature`
+3. Faça commit das suas alterações: `git commit -m 'feat: minha feature'`
+4. Envie para o seu fork: `git push origin feat/minha-feature`
+5. Abra um Pull Request
 
 ---
 
