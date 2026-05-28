@@ -5,7 +5,7 @@
 ![LangGraph](https://img.shields.io/badge/LangGraph-agente-purple)
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
-![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
+![Status](https://img.shields.io/badge/status-pausado-lightgrey)
 ![Licença](https://img.shields.io/badge/licença-MIT-green)
 
 > Assistente de programação com personalidade inspirada na Megumin de *KonoSuba*: dramática quando você quiser, profissional quando precisar.
