@@ -27,10 +27,5 @@ frontend/out/
 .DS_Store
 Thumbs.db
 
-# Documentação interna do projeto
-docs/
-CLAUDE.md
-AGENTS.md
-
 # Diretório de dados e configuração do Claude (nunca versionar)
 .claude/
