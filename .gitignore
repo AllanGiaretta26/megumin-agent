@@ -27,9 +27,5 @@ frontend/out/
 .DS_Store
 Thumbs.db
 
-# Orientação local para agentes de IA (não versionado)
-CLAUDE.md
-AGENTS.md
-
 # Diretório de dados e configuração do Claude (nunca versionar)
 .claude/
