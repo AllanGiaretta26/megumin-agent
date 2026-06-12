@@ -12,6 +12,8 @@
 
 Megumin Agent é um agente de IA para programação com backend FastAPI, orquestração LangGraph, tool calling, streaming via SSE e frontend Next.js. Ele pode conversar livremente, responder dúvidas sobre um projeto, planejar alterações e, nos modos com permissão, ler, listar e escrever arquivos dentro de um diretório autorizado.
 
+> Para uma visão da arquitetura interna, veja [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
 ![Tela principal do Megumin Agent](assets/menu.png)
 
 ![Tela de configurações](assets/settings.png)
@@ -27,7 +29,7 @@ Megumin Agent é um agente de IA para programação com backend FastAPI, orquest
 - **Sandbox de arquivos**: toda tool valida que o caminho fica dentro do `project_path`.
 - **Providers configuráveis**: Ollama local ou qualquer endpoint OpenAI-compatible.
 - **Personalidade ajustável**: `drama_level`, `temperature` e idioma via Settings.
-- **Tema Megumin**: interface escura em carmesim/âmbar, avatar gerado e foco visual no chat.
+- **Tema Megumin**: interface escura em carmesim/âmbar, avatar gerado por IA e foco visual no chat.
 
 ---
 
@@ -257,6 +259,13 @@ Modelos pequenos tendem a seguir as tools, mas ignorar parte da persona. Para ma
 3. Faça commit das suas alterações: `git commit -m 'feat: minha feature'`
 4. Envie para o seu fork: `git push origin feat/minha-feature`
 5. Abra um Pull Request
+
+---
+
+## Créditos e Avisos
+
+- **Personalidade inspirada** na personagem **Megumin**, da série *KonoSuba* (obra de Natsume Akatsuki). Este é um **projeto de fã**, **sem fins comerciais** e **sem afiliação oficial** com os detentores dos direitos da obra. Nenhum material protegido é redistribuído — o agente apenas se inspira no estilo da personagem via prompt.
+- **Avatar e identidade visual gerados por IA** (`frontend/public/assets/megumin-profile.png`). As capturas de tela (`assets/menu.png`, `assets/settings.png`) são da própria interface do projeto.
 
 ---
 

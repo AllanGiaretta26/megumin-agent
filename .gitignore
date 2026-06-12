@@ -27,8 +27,7 @@ frontend/out/
 .DS_Store
 Thumbs.db
 
-# Documentação interna do projeto
-docs/
+# Orientação local para agentes de IA (não versionado)
 CLAUDE.md
 AGENTS.md
 
